@@ -3,6 +3,7 @@
   "framework": null,
   "buildCommand": "npm run build",
   "outputDirectory": "public",
+  "regions": ["hnd1"],
   "functions": {
     "api/parse.js": { "maxDuration": 60 }
   },
