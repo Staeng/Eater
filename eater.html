@@ -682,6 +682,7 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
       <div class="field select" id="fSortWrap">
         <label class="sr-only" for="fSort">정렬</label>
         <select id="fSort">
+          <option value="recent">등록순</option>
           <option value="name">가나다순</option>
           <option value="soon">가까운 날짜 순</option>
           <option value="near">상암동에서 가까운 순</option>
@@ -1560,17 +1561,13 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
   }
 
   // ---------- filters ----------
-  const SORTS = ["name", "soon", "near"];
-  const filt = { region: "", cat: "", q: "", sort: "name" };
-  try { const s = JSON.parse(localStorage.getItem("eater.sort") || "null"); if (SORTS.includes(s)) { filt.sort = s; $("fSort").value = s; } } catch { /* ignore */ }
+  // every visit starts in 등록순 (newest first); a different sort lasts until the page reloads
+  const filt = { region: "", cat: "", q: "", sort: "recent" };
+  $("fSort").value = filt.sort;
   $("fRegion").addEventListener("change", e => { filt.region = e.target.value; render(); });
   $("fCat").addEventListener("change", e => { filt.cat = e.target.value; render(); });
   $("fQ").addEventListener("input", e => { filt.q = e.target.value.trim(); render(); });
-  $("fSort").addEventListener("change", e => {
-    filt.sort = e.target.value;
-    try { localStorage.setItem("eater.sort", JSON.stringify(filt.sort)); } catch { /* ignore */ }
-    render();
-  });
+  $("fSort").addEventListener("change", e => { filt.sort = e.target.value; render(); });
   // hairline under the filter bar once it sticks
   const sentinel = h("div", { "aria-hidden": "true" });
   $("filters").before(sentinel);
@@ -1629,7 +1626,8 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
     } else if (filt.sort === "near") {
       const km = p => kmFromSangam(p) ?? 1e9;
       out.sort((a, b) => km(a) - km(b) || byName(a, b));
-    } else out.sort(byName);
+    } else if (filt.sort === "name") out.sort(byName);
+    else out.sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")) || byName(a, b));
     return out;
   }
 
