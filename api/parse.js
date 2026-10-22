@@ -41,6 +41,6 @@ export default async function handler(req, res) {
   const places = parsed && Array.isArray(parsed.places) ? parsed.places.slice(0, 10) : null;
   if (!places) return res.status(502).json({ error: "bad_output" });
 
-  await Promise.all(places.map(p => enrichPlace(p, memo).catch(err => console.warn("enrich:", err.message))));
-  return res.status(200).json({ places, model: message.model });
+  const reports = await Promise.all(places.map(p => enrichPlace(p, memo).catch(err => ({ error: err.message }))));
+  return res.status(200).json({ places, reports, model: message.model });
 }
