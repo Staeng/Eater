@@ -303,6 +303,7 @@ input[type=file].sr-only:focus-visible + label { outline: 3px solid var(--tomato
 .where { margin: 0; display: flex; align-items: center; gap: 4px 6px; flex-wrap: wrap; font-size: var(--t-small); color: var(--ink-2); line-height: 1.45; }
 .where svg { width: 14px; height: 14px; flex: none; color: var(--tomato); }
 .area { color: var(--ink); font-weight: 600; }
+.dist { color: var(--tomato); font-weight: 600; font-variant-numeric: tabular-nums; }
 .menus { margin: 2px 0 0; font-size: var(--t-value); font-weight: 600; line-height: 1.45; }
 .facts { margin: 4px 0 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 10px; font-size: var(--t-small); line-height: 1.45; }
 .facts dt { color: var(--ink-2); }
@@ -353,9 +354,9 @@ input[type=file].sr-only:focus-visible + label { outline: 3px solid var(--tomato
   font-size: var(--t-label);
   color: var(--ink-2);
 }
-.foot .added { font-variant-numeric: tabular-nums; white-space: nowrap; }
-.foot .right { display: flex; align-items: center; gap: 2px; }
-.go { display: inline-flex; align-items: center; gap: 5px; padding: 0 8px; color: var(--ink); font-weight: 600; white-space: nowrap; }
+.foot .left, .foot .right { display: flex; align-items: center; gap: 4px; }
+.foot .left { min-height: 44px; }
+.go { display: inline-flex; align-items: center; gap: 5px; padding: 0 6px 0 0; color: var(--ink); font-weight: 600; white-space: nowrap; }
 .go i { width: 7px; height: 7px; border-radius: 50%; background: var(--leaf); }
 .reel {
   position: relative; z-index: 2;
@@ -410,33 +411,39 @@ input[type=file].sr-only:focus-visible + label { outline: 3px solid var(--tomato
 dialog.editor {
   border: 0; padding: 0;
   width: min(560px, calc(100% - 24px));
-  max-height: calc(100% - 32px);
+  max-height: calc(100dvh - 24px);
+  overflow: auto;
   border-radius: var(--r-card);
   background: var(--paper); color: var(--ink);
   box-shadow: 0 20px 50px -20px rgb(42 38 48 / .45);
 }
 dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
-.editor form { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; padding: 20px 16px 16px; }
+.editor form { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; padding: 18px 16px 14px; }
 .editor h2 { margin: 0; font-size: var(--t-title); font-weight: 800; }
-.editor .row { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
-.editor label { display: grid; gap: 4px; font-size: var(--t-label); font-weight: 600; color: var(--ink-2); min-width: 0; }
+.editor .row { display: grid; gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.editor label { display: grid; gap: 2px; font-size: var(--t-label); font-weight: 600; color: var(--ink-2); min-width: 0; }
 .editor input, .editor select, .editor textarea {
   width: 100%;
-  min-height: 44px;
+  min-width: 0;
+  height: 44px;
   border: 1.5px solid var(--line);
-  border-radius: var(--r-thumb);
+  border-radius: 12px;
   background: var(--well);
-  padding: 9px 12px;
+  padding: 0 12px;
   color: var(--ink);
   font-size: var(--t-body);
   font-weight: 400;
 }
-.editor textarea { min-height: 72px; resize: vertical; }
+.editor input[type=date] { -webkit-appearance: none; appearance: none; display: block; text-align: left; }
+.editor input[type=date]::-webkit-date-and-time-value { text-align: left; }
+.editor select { -webkit-appearance: none; appearance: none; }
 .editor input:focus, .editor select:focus, .editor textarea:focus { outline: none; border-color: var(--tomato); background: var(--paper); }
 .editor .photo-edit { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.editor .photo-edit .preview { width: 64px; height: 64px; border-radius: var(--r-thumb); overflow: hidden; background: var(--well); display: grid; place-items: center; font-size: 30px; }
+.editor .photo-edit .preview { width: 48px; height: 48px; border-radius: var(--r-thumb); overflow: hidden; background: var(--well); display: grid; place-items: center; font-size: 30px; }
 .editor .photo-edit .preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .editor .buttons { display: flex; justify-content: flex-end; gap: 8px; }
+.dup-text { margin: 0; color: var(--ink-2); font-size: var(--t-small); }
+.dup-list { margin: 0; padding-left: 20px; font-weight: 600; display: grid; gap: 4px; }
 
 @media (max-width: 640px) {
   .filters-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -489,7 +496,7 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
 
   <section class="composer" id="composer" aria-label="새로 담기">
     <label class="title" for="raw">먹고 싶은 거, 생각나는 대로 적어 주세요</label>
-    <textarea id="raw" rows="3" placeholder="성수 몽탄 우대갈비, 다음주 금요일 저녁에 둘이 10만원 https://naver.me/…"></textarea>
+    <textarea id="raw" rows="3" placeholder="성수 몽탄 우대갈비, 다음주 금요일 저녁 https://naver.me/…"></textarea>
     <p class="tips" id="tips">네이버지도에서 ‘공유 → 복사’한 글을 그대로 붙여도 되고, 여러 곳을 한 번에 적어도 돼요.</p>
     <div class="reel-row">
       <label class="check" for="hasReel">
@@ -537,9 +544,9 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
       <div class="field select" id="fSortWrap">
         <label class="sr-only" for="fSort">정렬</label>
         <select id="fSort">
-          <option value="recent">최근 담은 순</option>
+          <option value="name">가나다순</option>
           <option value="soon">가까운 날짜 순</option>
-          <option value="cheap">예산 낮은 순</option>
+          <option value="near">상암동에서 가까운 순</option>
         </select>
       </div>
     </div>
@@ -580,17 +587,12 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
     <div class="row">
       <label>시·도<select id="edCity"></select></label>
       <label>구·시<input id="edGu" placeholder="용산구"></label>
-      <label>동<input id="edDong" placeholder="한강로동"></label>
     </div>
     <div class="row">
       <label>가고 싶은 날<input id="edDate" type="date"></label>
       <label>언제 메모<input id="edWhen" placeholder="저녁, 생일, 12월 중"></label>
     </div>
-    <div class="row">
-      <label>1인 예산 (원)<input id="edBudget" type="number" min="0" step="1000" inputmode="numeric" placeholder="50000"></label>
-      <label>예산 메모<input id="edBudgetLabel" placeholder="둘이 10만원"></label>
-    </div>
-    <label>메모<textarea id="edMemo" placeholder="웨이팅 김, 예약 필수"></textarea></label>
+    <label>메모<input id="edMemo" autocomplete="off" placeholder="웨이팅 김, 예약 필수"></label>
     <div class="photo-edit">
       <div class="preview" id="edPreview"></div>
       <input class="sr-only" type="file" id="edPhoto" accept="image/*">
@@ -604,28 +606,53 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
   </form>
 </dialog>
 
+<dialog class="editor" id="dupDialog" aria-labelledby="dupTitle">
+  <form method="dialog">
+    <h2 id="dupTitle">이미 담은 곳이에요</h2>
+    <p class="dup-text" id="dupText"></p>
+    <ul class="dup-list" id="dupList"></ul>
+    <div class="buttons">
+      <button type="button" class="btn quiet" id="dupShow">카드 보기</button>
+      <button type="submit" class="btn primary">확인</button>
+    </div>
+  </form>
+</dialog>
+
 <script>
 (() => {
   "use strict";
 
   // ---------- reference data (keep CATS keys in sync with lib/prompt.js) ----------
+  // Display order. Keep keys in sync with CATEGORIES in lib/prompt.js.
   const CATS = [
-    { key: "소고기", emoji: "🥩", hue: "#E5484D", words: ["한우", "소고기", "우대갈비", "소갈비", "갈비살", "등심", "안심", "차돌", "육회", "꽃등심", "채끝", "살치살", "소곱창", "대창", "양대창", "우설", "규카츠"] },
+    { key: "소고기", emoji: "🥩", hue: "#E5484D", words: ["한우", "소고기", "우대갈비", "소갈비", "갈비살", "등심", "안심", "차돌", "육회", "꽃등심", "채끝", "살치살", "소곱창", "대창", "양대창", "우설"] },
     { key: "돼지고기", emoji: "🐷", hue: "#EC6FA0", words: ["삼겹", "목살", "항정", "가브리", "돼지", "족발", "보쌈", "돼지갈비", "흑돼지", "막창", "뒷고기"] },
     { key: "닭·오리", emoji: "🍗", hue: "#F59E0B", words: ["치킨", "통닭", "닭", "삼계탕", "닭갈비", "오리", "닭한마리", "닭볶음탕", "야키토리", "백숙"] },
     { key: "해산물", emoji: "🦐", hue: "#2D9CDB", words: ["횟집", "회", "조개", "대게", "킹크랩", "랍스터", "굴", "장어", "해산물", "새우", "전복", "물회", "아구", "꼼장어", "간장게장", "게장", "해물"] },
-    { key: "초밥·일식", emoji: "🍣", hue: "#F0805A", words: ["스시", "초밥", "오마카세", "라멘", "돈카츠", "돈까스", "우동", "이자카야", "텐동", "규동", "사시미", "소바", "텐푸라", "오코노미야키", "덮밥"] },
-    { key: "중식", emoji: "🥟", hue: "#A26BE0", words: ["짜장", "짬뽕", "탕수육", "딤섬", "마라", "훠궈", "양꼬치", "중식", "중국집", "마파두부", "꿔바로우", "샤오롱바오", "만두"] },
-    { key: "양식", emoji: "🍝", hue: "#2FAE7E", words: ["파스타", "피자", "스테이크", "버거", "햄버거", "리조또", "브런치", "양식", "비스트로", "샐러드", "타코"] },
     { key: "한식", emoji: "🍚", hue: "#B9844A", words: ["백반", "국밥", "찌개", "한정식", "비빔밥", "곰탕", "설렁탕", "순대국", "감자탕", "해장국", "솥밥", "한식", "보리밥", "쌈밥", "갈비탕", "청국장", "김치찜", "생선구이"] },
     { key: "면요리", emoji: "🍜", hue: "#3BB3B0", words: ["냉면", "평양냉면", "국수", "칼국수", "막국수", "소면", "콩국수", "잔치국수", "밀면"] },
     { key: "분식", emoji: "🍢", hue: "#E86A2C", words: ["떡볶이", "김밥", "순대", "튀김", "라볶이", "분식", "어묵", "쫄면"] },
-    { key: "아시안", emoji: "🍛", hue: "#8FB339", words: ["쌀국수", "팟타이", "커리", "카레", "분짜", "똠얌", "반미", "태국", "베트남", "인도", "나시고렝", "마라샹궈"] },
-    { key: "카페·디저트", emoji: "🍰", hue: "#7A8CF0", words: ["카페", "커피", "케이크", "디저트", "베이커리", "빵집", "빵", "도넛", "빙수", "젤라또", "아이스크림", "크로플", "쿠키", "마카롱", "휘낭시에", "소금빵", "에그타르트"] },
-    { key: "술집", emoji: "🍻", hue: "#5B6B8C", words: ["와인", "맥주", "하이볼", "칵테일", "포차", "막걸리", "전통주", "위스키", "술집", "호프", "바"] },
+    { key: "일식", emoji: "🍣", hue: "#F0805A", words: ["스시", "초밥", "오마카세", "라멘", "돈카츠", "돈까스", "규카츠", "우동", "텐동", "규동", "사시미", "소바", "텐푸라", "오코노미야키", "덮밥", "일식"] },
+    { key: "중식", emoji: "🥟", hue: "#A26BE0", words: ["짜장", "짬뽕", "탕수육", "딤섬", "마라", "훠궈", "양꼬치", "중식", "중국집", "마파두부", "꿔바로우", "샤오롱바오", "만두"] },
+    { key: "이탈리안", emoji: "🍝", hue: "#2FAE7E", words: ["파스타", "피자", "리조또", "라자냐", "뇨끼", "이탈리안", "트라토리아", "까르보나라"] },
+    { key: "프렌치", emoji: "🥐", hue: "#6C7BD9", words: ["프렌치", "프랑스", "비스트로", "에스카르고", "뵈프"] },
+    { key: "스페인", emoji: "🥘", hue: "#D9822B", words: ["타파스", "빠에야", "파에야", "스페인", "하몽", "감바스"] },
+    { key: "멕시칸", emoji: "🌮", hue: "#8DA62A", words: ["타코", "부리또", "브리또", "퀘사디아", "나초", "멕시칸", "멕시코", "화이타"] },
+    { key: "아메리칸", emoji: "🍔", hue: "#C2563A", words: ["버거", "햄버거", "스테이크", "바베큐", "바비큐", "핫도그", "아메리칸", "립"] },
+    { key: "브런치", emoji: "🥞", hue: "#D49A2E", words: ["브런치", "팬케이크", "에그베네딕트", "샐러드"] },
+    { key: "태국", emoji: "🌶️", hue: "#E04F6A", words: ["팟타이", "똠얌", "태국", "쏨땀", "푸팟퐁", "그린커리"] },
+    { key: "베트남", emoji: "🍲", hue: "#4FA36B", words: ["쌀국수", "분짜", "반미", "베트남", "반쎄오", "월남쌈"] },
+    { key: "인도·네팔", emoji: "🍛", hue: "#C7832F", words: ["커리", "카레", "인도", "네팔", "탄두리", "비리야니"] },
+    { key: "중동·지중해", emoji: "🥙", hue: "#5E9FB8", words: ["케밥", "후무스", "팔라펠", "그리스", "튀르키예", "터키", "중동", "지중해", "기로스"] },
+    { key: "카페·디저트", emoji: "🍰", hue: "#7A8CF0", words: ["카페", "커피", "케이크", "디저트", "도넛", "빙수", "젤라또", "아이스크림", "크로플", "쿠키", "마카롱", "휘낭시에", "에그타르트", "푸딩"] },
+    { key: "베이커리", emoji: "🍞", hue: "#B07A4F", words: ["베이커리", "빵집", "빵", "소금빵", "크루아상", "베이글", "식빵", "스콘"] },
+    { key: "술집", emoji: "🍻", hue: "#5B6B8C", words: ["와인", "맥주", "하이볼", "칵테일", "포차", "막걸리", "전통주", "위스키", "술집", "호프", "이자카야", "요리주점", "바"] },
     { key: "기타", emoji: "🍽️", hue: "#9AA0A6", words: [] },
   ];
+  // Keyword matching tries specific cuisines before generic meat/Korean words (스테이크 → 아메리칸, 규카츠 → 일식).
+  const MATCH_ORDER = ["일식", "중식", "이탈리안", "프렌치", "스페인", "멕시칸", "아메리칸", "브런치", "태국", "베트남", "인도·네팔", "중동·지중해", "카페·디저트", "베이커리", "술집", "소고기", "돼지고기", "닭·오리", "해산물", "면요리", "분식", "한식"];
   const CAT = Object.fromEntries(CATS.map(c => [c.key, c]));
+  const CATS_MATCH = MATCH_ORDER.map(k => CAT[k]);
 
   // 서울 생활권 기준 5개 권역
   const SEOUL_AREA = {
@@ -714,13 +741,6 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
   const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
   const daysUntil = s => Math.round((parseYmd(s) - startOfDay(new Date())) / 86400000);
   const fmtDate = s => { const d = parseYmd(s); return `${d.getMonth() + 1}월 ${d.getDate()}일 (${WD[d.getDay()]})`; };
-  const fmtShort = iso => { const d = new Date(iso); return isNaN(d) ? "" : `${d.getMonth() + 1}월 ${d.getDate()}일`; };
-  function fmtWon(n) {
-    if (!n) return "";
-    if (n >= 10000) { const m = n / 10000; return `${Number.isInteger(m) ? m : m.toFixed(1).replace(/\.0$/, "")}만원`; }
-    if (n >= 1000) return `${Math.round(n / 1000)}천원`;
-    return `${n.toLocaleString("ko-KR")}원`;
-  }
   function weekBounds(today) {
     const dow = (today.getDay() + 6) % 7; // 월=0
     const mon = addDays(today, -dow);
@@ -920,7 +940,7 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
       `[식사종류 목록] ${CATS.map(c => c.key).join(", ")}`,
       "",
       "[답 형식]",
-      '{"places":[{"name":"","link":"","reel":"","address":"","city":"","gu":"","dong":"","menus":[],"category":"","budget":null,"budgetLabel":"","wantDate":null,"wantWhen":"","memo":""}]}',
+      '{"places":[{"name":"","link":"","reel":"","address":"","city":"","gu":"","dong":"","menus":[],"category":"","wantDate":null,"wantWhen":"","memo":""}]}',
       "",
       "[규칙]",
       "- name: 식당 이름. 네이버 지도 공유 글이면 '[네이버 지도]' 다음 줄이 식당 이름이야. 식당이 정해지지 않았으면 \"\".",
@@ -931,14 +951,12 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
       "- city: 시·도 짧은 이름(서울, 경기, 인천, 부산 …). gu: 서울은 '용산구'처럼 구, 경기 등은 '성남시 분당구'처럼 시·구. dong: '한강로동'처럼 동.",
       "- 주소가 없으면 동네 이름으로 추정해(성수→성동구 성수동, 을지로→중구 을지로동, 홍대→마포구 서교동, 연남→마포구 연남동, 이태원→용산구 이태원동, 강남역→강남구 역삼동, 잠실→송파구 잠실동, 판교→경기 성남시 분당구).",
       "- 동네 정보가 전혀 없으면, 이름만으로 위치를 확실히 아는 유명한 곳일 때만 채우고 아니면 빈칸으로 둬.",
-      "- menus: 먹고 싶은 메뉴 이름 배열. 짧게(예: [\"우대갈비\", \"된장밥\"]). 메뉴 언급이 없으면 그 식당의 대표 메뉴를 확실히 알 때만 1개.",
-      "- category: [식사종류 목록] 중 정확히 하나. 고기 메뉴는 고기 종류(소고기, 돼지고기, 닭·오리)를 우선해.",
-      "- budget: 1인 기준 예산, 원 단위 정수. '둘이 10만원'이면 50000, '1인 3만'이면 30000. 언급이 없으면 null.",
-      "- budgetLabel: 사용자가 말한 예산 표현 그대로 짧게(예: \"둘이 10만원\"). 없으면 \"\".",
+      "- menus: 먹고 싶은 메뉴 이름 배열. 짧게(예: [\"우대갈비\", \"된장밥\"]). 메모에 메뉴가 없으면 그 식당의 대표 메뉴를 확실히 알 때만 1~2개.",
+      "- category: [식사종류 목록] 중 정확히 하나. 한국식 고깃집은 고기 종류(소고기, 돼지고기, 닭·오리), 회·조개 전문점은 해산물, 외국 요리는 나라별(일식, 중식, 이탈리안, 프렌치, 스페인, 멕시칸, 아메리칸, 태국, 베트남, 인도·네팔, 중동·지중해), 브런치·빵집·카페·술집은 각각. 기타는 정말 맞는 게 없을 때만.",
       "- wantDate: [달력]으로 날짜를 정할 수 있으면 YYYY-MM-DD. '이번 주말'처럼 범위면 첫날(토요일). 못 정하면 null.",
       "- wantWhen: 시기 표현 짧게(예: \"다음주 금요일 저녁\", \"12월 중\", \"생일\"). 없으면 \"\".",
       "- memo: 위 칸에 안 들어간 짧은 메모(웨이팅, 예약, 같이 갈 사람 등). 없으면 \"\".",
-      "- 여러 곳이면 places에 하나씩. 같은 날짜·예산이 여러 곳에 걸리면 각각에 넣어.",
+      "- 여러 곳이면 places에 하나씩. 같은 날짜가 여러 곳에 걸리면 각각에 넣어.",
       withImage ? "- 함께 보낸 사진은 사용자가 고른 음식 사진이야. 메뉴와 식사종류를 고르는 데 참고해. 간판·메뉴판 글씨가 보이면 식당 이름에도 참고해." : null,
       "",
       "[메모]",
@@ -981,22 +999,9 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
       if (hood) { [, city, gu] = hood; dong = dong || hood[3]; rest = rest.replace(hood[0], " "); }
     }
 
-    // budget
-    let budget = null, budgetLabel = "";
+    // money phrases are dropped (budget isn't tracked) so they don't end up as a name
     const won = rest.match(/(?:(1인|인당|한\s*명|둘이|두\s*명|2인|셋이|세\s*명|3인|넷이|네\s*명|4인|(\d+)\s*(?:명|인))\s*(?:이서|서|에|당)?\s*)?(?:예산\s*)?(\d+(?:\.\d+)?)\s*(만\s*원?|천\s*원?|원)/);
-    if (won) {
-      const unit = won[4].replace(/\s/g, "");
-      const amount = parseFloat(won[3]) * (unit.startsWith("만") ? 10000 : unit.startsWith("천") ? 1000 : 1);
-      const who = (won[1] || "").replace(/\s/g, "");
-      let people = 1;
-      if (/둘|두명|2인/.test(who)) people = 2;
-      else if (/셋|세명|3인/.test(who)) people = 3;
-      else if (/넷|네명|4인/.test(who)) people = 4;
-      else if (won[2]) people = Number(won[2]) || 1;
-      budget = Math.round(amount / people);
-      budgetLabel = won[0].trim();
-      rest = rest.replace(won[0], " ");
-    }
+    if (won) rest = rest.replace(won[0], " ");
 
     // date
     const today = startOfDay(new Date());
@@ -1035,7 +1040,7 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
     // menus & category
     const menus = [];
     let category = "";
-    for (const c of CATS) {
+    for (const c of CATS_MATCH) {
       for (const w of c.words) {
         // one-letter words (회, 닭, 빵, 바 …) only count as a standalone word
         const re = w.length < 2 ? new RegExp(`(?<![가-힣])${w}(?:이|가|을|를|도|랑)?(?![가-힣])`) : new RegExp(`[가-힣]*${w}[가-힣]*`);
@@ -1057,12 +1062,12 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
       if (tokens.length) name = tokens[0];
     }
 
-    return [{ name, link, reel, address, city, gu, dong, menus: menus.slice(0, 4), category, budget, budgetLabel, wantDate, wantWhen, memo: "" }];
+    return [{ name, link, reel, address, city, gu, dong, menus: menus.slice(0, 4), category, wantDate, wantWhen, memo: "" }];
   }
 
   function guessCategory(menus, name) {
     const hay = [...menus, name].join(" ");
-    for (const c of CATS) if (c.words.some(w => w.length >= 2 && hay.includes(w))) return c.key;
+    for (const c of CATS_MATCH) if (c.words.some(w => w.length >= 2 && hay.includes(w))) return c.key;
     return "기타";
   }
 
@@ -1072,6 +1077,8 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
     const fromMemo = u => (u && rawLinks.some(r => r === u || r.startsWith(u) || u.startsWith(r)) ? u : "");
     let link = fromMemo(safeUrl(str(p.link)));
     let reel = fromMemo(safeUrl(str(p.reel)));
+    // the server found the place on Naver by name; only accept its own link shape
+    if (!link && /^https:\/\/map\.naver\.com\/p\/entry\/place\/\d+$/.test(str(p.naverLink))) link = str(p.naverLink);
     if (link && isReelUrl(link)) { reel = reel || link; link = ""; }
     if (reel && !isReelUrl(reel)) { link = link || reel; reel = ""; }
     let city = str(p.city);
@@ -1081,8 +1088,8 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
     const dong = str(p.dong);
     let category = str(p.category);
     if (!CAT[category]) category = guessCategory(menus, name);
-    let budget = Number(p.budget);
-    budget = p.budget != null && Number.isFinite(budget) && budget > 0 ? Math.round(budget) : null;
+    const lat = Number(p.lat), lng = Number(p.lng);
+    const placeId = /^\d{5,15}$/.test(str(p.placeId)) ? str(p.placeId) : "";
     const wantDate = /^\d{4}-\d{2}-\d{2}$/.test(str(p.wantDate)) ? str(p.wantDate) : null;
     const photoUrl = safeUrl(str(p.photoUrl));
     return {
@@ -1091,13 +1098,14 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
       city, gu, dong,
       area: areaOf(city, gu, str(p.area)),
       category, menus,
-      budget, budgetLabel: str(p.budgetLabel).slice(0, 40),
       wantDate, wantWhen: str(p.wantWhen).slice(0, 40),
       memo: str(p.memo).slice(0, 200),
       raw: raw.slice(0, 1000),
       createdAt: new Date().toISOString(),
       example: false,
       ...(photoUrl.startsWith("https://") ? { photoUrl } : {}),
+      ...(lat > 33 && lat < 39 && lng > 124 && lng < 132 ? { lat, lng } : {}),
+      ...(placeId ? { placeId } : {}),
     };
   }
 
@@ -1248,26 +1256,45 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
       }
       if (reelIn && items.length) items[0].reel = reelIn;
 
+      // places already on the list are not added again
+      const toAdd = [], dups = [];
+      for (const it of items) {
+        const twin = findTwin(it, [...store.items, ...toAdd]);
+        if (twin) dups.push(twin); else toAdd.push(it);
+      }
+      const clearComposer = () => {
+        $("raw").value = "";
+        $("reelInput").value = "";
+        $("hasReel").checked = false;
+        $("reelField").hidden = true;
+        attached = null;
+        $("attachThumb").hidden = true;
+      };
+      if (!toAdd.length) {
+        clearComposer();
+        setStatus("");
+        showDuplicates(dups, false);
+        return;
+      }
+
       let photoNote = "";
-      if (photo && items.length) {
+      if (photo) {
         setStatus(working("사진 올리는 중…"));
-        try { Object.assign(items[0], await storePhoto(photo)); }
+        try { Object.assign(toAdd[0], await storePhoto(photo)); }
         catch { photoNote = "사진은 올리지 못했어요. 카드의 연필 버튼으로 다시 넣을 수 있어요."; }
       }
       const ids = [];
-      for (const it of items) ids.push(await store.add(it));
+      for (const it of toAdd) ids.push(await store.add(it));
       fresh = new Set(ids);
       render();
-      $("raw").value = "";
-      $("reelInput").value = "";
-      $("hasReel").checked = false;
-      $("reelField").hidden = true;
-      attached = null;
-      $("attachThumb").hidden = true;
+      const added = document.querySelector(".card.pop");
+      if (added) added.scrollIntoView({ block: "center", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+      clearComposer();
       const msg = [note, photoNote].filter(Boolean).join(" ");
       setStatus(msg, !!msg);
-      const first = items[0].name || items[0].menus[0];
-      showToast(items.length === 1 ? `${first ? withObj(first) : "1곳을"} 담았어요` : `${items.length}곳을 담았어요`, "되돌리기", async () => {
+      if (dups.length) showDuplicates(dups, true);
+      const first = toAdd[0].name || toAdd[0].menus[0];
+      showToast(toAdd.length === 1 ? `${first ? withObj(first) : "1곳을"} 담았어요` : `${toAdd.length}곳을 담았어요`, "되돌리기", async () => {
         for (const id of ids) {
           const p = store.items.find(x => x.id === id);
           await store.remove(id).catch(() => {});
@@ -1288,6 +1315,35 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
     }
   }
 
+  // ---------- duplicates ----------
+  const squash = s => String(s || "").replace(/\s+/g, "").toLowerCase();
+  const linkKey = u => String(u || "").replace(/[?#].*$/, "").replace(/\/+$/, "");
+  function findTwin(it, pool) {
+    return pool.find(p =>
+      (it.placeId && it.placeId === p.placeId) ||
+      (it.link && linkKey(it.link) === linkKey(p.link)) ||
+      (it.name && squash(it.name) === squash(p.name) && (!it.gu || !p.gu || it.gu === p.gu)) ||
+      (!it.name && !p.name && (it.menus || [])[0] && squash(it.menus[0]) === squash((p.menus || [])[0]) && (it.dong || it.gu) === (p.dong || p.gu)));
+  }
+  let dupFirst = null;
+  function showDuplicates(twins, someAdded) {
+    const uniq = [...new Map(twins.map(t => [t.id, t])).values()];
+    dupFirst = uniq[0];
+    $("dupText").textContent = someAdded ? "나머지는 담았고, 아래 곳은 이미 목록에 있어서 담지 않았어요." : "이미 목록에 있어서 담지 않았어요.";
+    $("dupList").replaceChildren(...uniq.map(t => h("li", { text: [titleOf(t), [t.gu, t.dong].filter(Boolean).join(" ")].filter(Boolean).join(" · ") })));
+    const d = $("dupDialog");
+    if (typeof d.showModal === "function") d.showModal(); else d.setAttribute("open", "");
+  }
+  $("dupShow").addEventListener("click", () => {
+    $("dupDialog").close();
+    if (!dupFirst) return;
+    let el = document.querySelector(`.card[data-id="${CSS.escape(dupFirst.id)}"]`);
+    if (!el) { clearFilters(); el = document.querySelector(`.card[data-id="${CSS.escape(dupFirst.id)}"]`); }
+    if (!el) return;
+    el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop");
+    el.scrollIntoView({ block: "center", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  });
+
   // ---------- toast ----------
   let toastTimer = 0;
   function showToast(text, actionLabel, action) {
@@ -1302,8 +1358,9 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
   }
 
   // ---------- filters ----------
-  const filt = { region: "", cat: "", q: "", sort: "recent" };
-  try { const s = JSON.parse(localStorage.getItem("eater.sort") || "null"); if (s) { filt.sort = s; $("fSort").value = s; } } catch { /* ignore */ }
+  const SORTS = ["name", "soon", "near"];
+  const filt = { region: "", cat: "", q: "", sort: "name" };
+  try { const s = JSON.parse(localStorage.getItem("eater.sort") || "null"); if (SORTS.includes(s)) { filt.sort = s; $("fSort").value = s; } } catch { /* ignore */ }
   $("fRegion").addEventListener("change", e => { filt.region = e.target.value; render(); });
   $("fCat").addEventListener("change", e => { filt.cat = e.target.value; render(); });
   $("fQ").addEventListener("input", e => { filt.q = e.target.value.trim(); render(); });
@@ -1363,15 +1420,39 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
       }
       return true;
     });
-    const byRecent = (a, b) => String(b.createdAt).localeCompare(String(a.createdAt));
+    const byName = (a, b) => titleOf(a).localeCompare(titleOf(b), "ko");
     if (filt.sort === "soon") {
       const key = p => (!p.wantDate ? 3e9 : daysUntil(p.wantDate) < 0 ? 2e9 + daysUntil(p.wantDate) : daysUntil(p.wantDate));
-      out.sort((a, b) => key(a) - key(b) || byRecent(a, b));
-    } else if (filt.sort === "cheap") {
-      out.sort((a, b) => (a.budget || 9e9) - (b.budget || 9e9) || byRecent(a, b));
-    } else out.sort(byRecent);
+      out.sort((a, b) => key(a) - key(b) || byName(a, b));
+    } else if (filt.sort === "near") {
+      const km = p => kmFromSangam(p) ?? 1e9;
+      out.sort((a, b) => km(a) - km(b) || byName(a, b));
+    } else out.sort(byName);
     return out;
   }
+
+  // 상암동(DMC) 기준 거리. 네이버 좌표가 없으면 구청 위치로 어림한다.
+  const SANGAM = [37.5784, 126.8897];
+  const GU_CENTER = {
+    "종로구": [37.5735, 126.9790], "중구": [37.5641, 126.9979], "용산구": [37.5326, 126.9905],
+    "성동구": [37.5634, 127.0368], "광진구": [37.5385, 127.0823], "동대문구": [37.5744, 127.0396],
+    "중랑구": [37.6066, 127.0927], "성북구": [37.5894, 127.0167], "강북구": [37.6396, 127.0257],
+    "도봉구": [37.6688, 127.0471], "노원구": [37.6542, 127.0568], "은평구": [37.6027, 126.9291],
+    "서대문구": [37.5791, 126.9368], "마포구": [37.5663, 126.9019], "양천구": [37.5170, 126.8665],
+    "강서구": [37.5509, 126.8495], "구로구": [37.4954, 126.8874], "금천구": [37.4569, 126.8955],
+    "영등포구": [37.5264, 126.8962], "동작구": [37.5124, 126.9393], "관악구": [37.4784, 126.9516],
+    "서초구": [37.4837, 127.0324], "강남구": [37.5172, 127.0473], "송파구": [37.5145, 127.1059],
+    "강동구": [37.5301, 127.1238],
+  };
+  function kmFromSangam(p) {
+    const at = Number.isFinite(p.lat) && Number.isFinite(p.lng) ? [p.lat, p.lng] : GU_CENTER[p.gu];
+    if (!at) return null;
+    const rad = d => d * Math.PI / 180;
+    const dLat = rad(at[0] - SANGAM[0]), dLng = rad(at[1] - SANGAM[1]);
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos(rad(SANGAM[0])) * Math.cos(rad(at[0])) * Math.sin(dLng / 2) ** 2;
+    return 6371 * 2 * Math.asin(Math.sqrt(a));
+  }
+  const titleOf = p => p.name || (p.menus || [])[0] || "";
 
   // ---------- cards ----------
   let fresh = new Set();
@@ -1388,7 +1469,7 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
     const cat = CAT[p.category] || CAT["기타"];
     const go = mapHref(p);
     const title = p.name || (p.menus || [])[0] || "이름 없는 맛집";
-    const el = h("article", { class: "card" + (go ? " linked" : "") + (fresh.has(p.id) ? " pop" : ""), style: `--hue:${cat.hue}` });
+    const el = h("article", { class: "card" + (go ? " linked" : "") + (fresh.has(p.id) ? " pop" : ""), style: `--hue:${cat.hue}`, "data-id": p.id });
     if (go) el.append(h("a", { class: "stretch", href: go.href, target: "_blank", rel: "noopener noreferrer", "aria-label": `${title}, ${go.says}` }));
 
     // info (left)
@@ -1397,9 +1478,11 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
       h("span", { class: "cat" }, h("span", { "aria-hidden": "true", text: cat.emoji }), cat.key),
       p.example ? h("span", { class: "example", text: "예시" }) : null));
     info.append(h("h3", { class: "name" }, title, !p.name && (p.menus || []).length ? h("span", { class: "undecided", text: "식당 미정" }) : null));
-    const where = [p.gu, p.dong].filter(Boolean).join(" ");
+    const where = p.gu || "";
     if (where || p.area) {
-      info.append(h("p", { class: "where" }, svg(ICON.pin), where ? h("span", { text: where }) : null, p.area ? h("span", { class: "area", text: p.area }) : null));
+      const km = filt.sort === "near" ? kmFromSangam(p) : null;
+      info.append(h("p", { class: "where" }, svg(ICON.pin), where ? h("span", { text: where }) : null, p.area ? h("span", { class: "area", text: p.area }) : null,
+        km != null ? h("span", { class: "dist", text: `상암에서 ${km < 10 ? km.toFixed(1) : Math.round(km)}km` }) : null));
     }
     const menuList = (p.menus || []).filter(m => m !== title);
     if (menuList.length) info.append(h("p", { class: "menus", text: menuList.join(", ") }));
@@ -1407,9 +1490,6 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
     facts.append(h("dt", { text: "언제" }));
     if (p.wantDate) facts.append(h("dd", null, fmtDate(p.wantDate), p.wantWhen ? h("small", { text: p.wantWhen }) : null));
     else facts.append(h("dd", { text: p.wantWhen || "언젠가" }));
-    facts.append(h("dt", { text: "예산" }));
-    const money = p.budget ? `1인 ${fmtWon(p.budget)}` : "";
-    facts.append(h("dd", null, money || p.budgetLabel || "미정", money && p.budgetLabel && p.budgetLabel !== money ? h("small", { text: p.budgetLabel }) : null));
     info.append(facts);
     if (p.memo) info.append(h("p", { class: "memo", text: p.memo }));
     el.append(info);
@@ -1429,9 +1509,10 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
     el.append(thumb);
 
     // footer
+    const left = h("div", { class: "left" });
+    if (go) left.append(h("span", { class: "go", "aria-hidden": "true" }, h("i"), go.label));
+    if (p.reel) left.append(h("a", { class: "reel", href: p.reel, target: "_blank", rel: "noopener noreferrer", "aria-label": `${title} ${reelLabel(p.reel)} 보기` }, svg(ICON.play), reelLabel(p.reel)));
     const right = h("div", { class: "right" });
-    if (p.reel) right.append(h("a", { class: "reel", href: p.reel, target: "_blank", rel: "noopener noreferrer", "aria-label": `${title} ${reelLabel(p.reel)} 보기` }, svg(ICON.play), reelLabel(p.reel)));
-    if (go) right.append(h("span", { class: "go", "aria-hidden": "true" }, h("i"), go.label));
     if (!readOnly) {
       const del = h("button", { class: "icon-btn", type: "button", "aria-label": `${title} 지우기` }, svg(ICON.trash));
       let armed = 0;
@@ -1453,7 +1534,7 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
       });
       right.append(h("button", { class: "icon-btn", type: "button", "aria-label": `${title} 고치기`, onclick: () => openEditor(p) }, svg(ICON.edit)), del);
     }
-    el.append(h("div", { class: "foot" }, h("span", { class: "added", text: `${fmtShort(p.createdAt)} 담음` }), right));
+    el.append(h("div", { class: "foot" }, left, right));
     return el;
   }
 
@@ -1542,11 +1623,8 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
     $("edMenus").value = (p.menus || []).join(", ");
     $("edCity").value = CITIES.includes(p.city) ? p.city : "";
     $("edGu").value = p.gu || "";
-    $("edDong").value = p.dong || "";
     $("edDate").value = p.wantDate || "";
     $("edWhen").value = p.wantWhen || "";
-    $("edBudget").value = p.budget || "";
-    $("edBudgetLabel").value = p.budgetLabel || "";
     $("edMemo").value = p.memo || "";
     edPreview(photoSrc(p), p.category);
     if (typeof ed.showModal === "function") ed.showModal(); else ed.setAttribute("open", "");
@@ -1571,7 +1649,6 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
     try {
       const city = $("edCity").value;
       const gu = $("edGu").value.trim();
-      const budget = Number($("edBudget").value);
       const patch = {
         name: $("edName").value.trim(),
         category: $("edCat").value,
@@ -1580,11 +1657,8 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
         menus: $("edMenus").value.split(/[,，、]/).map(s => s.trim()).filter(Boolean).slice(0, 6),
         city: city || (SEOUL_AREA[gu] ? "서울" : ""),
         gu,
-        dong: $("edDong").value.trim(),
         wantDate: $("edDate").value || null,
         wantWhen: $("edWhen").value.trim(),
-        budget: Number.isFinite(budget) && budget > 0 ? Math.round(budget) : null,
-        budgetLabel: $("edBudgetLabel").value.trim(),
         memo: $("edMemo").value.trim(),
         example: false,
       };
