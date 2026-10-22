@@ -367,6 +367,33 @@ input[type=file].sr-only:focus-visible + label { outline: 3px solid var(--tomato
 .pin-btn::after { content: ""; position: absolute; inset: -9px -3px; }
 .pin-btn:hover { color: var(--ink); }
 .pin-btn.on { background: var(--grad-btn); color: #FFFFFF; }
+/* drag handle on 우선 cards (shown when there are two or more): only the handle starts a drag,
+   so scrolling and tapping the card keep working */
+.grip {
+  position: relative; z-index: 2;
+  display: inline-grid; place-items: center;
+  width: 30px; height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: var(--well);
+  color: var(--ink-2);
+  touch-action: none;
+  cursor: grab;
+}
+.grip svg { width: 16px; height: 16px; }
+.grip::after { content: ""; position: absolute; inset: -9px -6px; }
+.card.dragging { z-index: 20; cursor: grabbing; box-shadow: 0 24px 48px -18px rgb(0 0 0 / .45); }
+.card.drop-before::before, .card.drop-after::after {
+  content: "";
+  position: absolute; left: 18px; right: 18px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--grad);
+}
+.card.drop-before::before { top: -10px; }
+.card.drop-after::after { bottom: -10px; }
+body.sorting { -webkit-user-select: none; user-select: none; }
 .card.pop { animation: pop .45s cubic-bezier(.3, 1.4, .5, 1); }
 @keyframes pop { from { transform: translateY(8px) scale(.97); opacity: .4; } to { transform: none; opacity: 1; } }
 .card .stretch { position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
@@ -924,6 +951,7 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
     trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/></svg>',
     check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
     play: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5Z"/></svg>',
+    grip: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="6" r="1.7"/><circle cx="15" cy="6" r="1.7"/><circle cx="9" cy="12" r="1.7"/><circle cx="15" cy="12" r="1.7"/><circle cx="9" cy="18" r="1.7"/><circle cx="15" cy="18" r="1.7"/></svg>',
     tack: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3.5h6l-1 5.5 3.5 3.5h-11L10 9z"/><path d="M12 12.5V21"/></svg>',
     tackOn: '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3.5h6l-1 5.5 3.5 3.5h-11L10 9z"/><path d="M12 12.5V21" fill="none"/></svg>',
     cal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14" rx="3"/><path d="M8 3.5v4M16 3.5v4M4 10h16"/></svg>',
@@ -1581,15 +1609,94 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
   });
 
   // ---------- 우선 (pin) ----------
+  // pinOrder: smaller first; a newly pinned card goes above the other 우선 cards
+  const pinRank = p => (typeof p.pinOrder === "number" ? p.pinOrder : Infinity);
+  const byPinOrder = (a, b) => (pinRank(a) === pinRank(b) ? 0 : pinRank(a) - pinRank(b));
+  const orderedPins = () => store.items.filter(p => p.pinned && !p.visited)
+    .sort((a, b) => byPinOrder(a, b) || String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
   async function togglePin(p) {
     const on = !p.pinned;
     try {
       if (on) fresh = new Set([p.id]);
-      await store.update(p.id, { pinned: on });
-      showToast(on ? `${withObj(titleOf(p) || "이 곳")} 맨 위에 고정했어요` : "고정을 풀었어요");
+      const top = Math.min(1, ...orderedPins().map(pinRank).filter(Number.isFinite));
+      await store.update(p.id, on ? { pinned: true, pinOrder: top - 1 } : { pinned: false, pinOrder: null });
+      const many = on && orderedPins().length === 2;
+      showToast(on ? (many ? "맨 위에 고정했어요. ⠿ 손잡이를 끌면 우선 카드 순서를 바꿀 수 있어요" : `${withObj(titleOf(p) || "이 곳")} 맨 위에 고정했어요`) : "고정을 풀었어요");
       const moved = on && document.querySelector(`.card[data-id="${CSS.escape(p.id)}"]`);
       if (moved) moved.scrollIntoView({ block: "center", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
     } catch { showToast("바꾸지 못했어요. 다시 눌러 주세요."); }
+  }
+
+  // ---------- 우선 order: drag a card by its ⠿ handle, or arrow keys on the handle ----------
+  let pinCount = 0;
+  async function movePin(id, targetId, after) {
+    const ids = orderedPins().map(p => p.id).filter(x => x !== id);
+    const at = ids.indexOf(targetId);
+    if (at < 0) return;
+    ids.splice(at + (after ? 1 : 0), 0, id);
+    const changes = ids.map((pid, i) => [pid, i + 1]).filter(([pid, order]) => (store.items.find(p => p.id === pid) || {}).pinOrder !== order);
+    try {
+      for (const [pid, order] of changes) await store.update(pid, { pinOrder: order });
+      showToast("순서를 바꿨어요");
+    } catch { showToast("순서를 바꾸지 못했어요. 다시 해 주세요."); store.refresh(); }
+  }
+  function startDrag(e, p) {
+    if (e.button) return;
+    e.preventDefault();
+    const grip = e.currentTarget, el = grip.closest(".card");
+    grip.setPointerCapture(e.pointerId);
+    const x0 = e.clientX, y0 = e.clientY, scroll0 = scrollY;
+    let x = x0, y = y0, target = null, after = false, frame = 0;
+    el.classList.add("dragging");
+    document.body.classList.add("sorting");
+    const unmark = () => document.querySelectorAll(".drop-before, .drop-after").forEach(c => c.classList.remove("drop-before", "drop-after"));
+    const place = () => {
+      el.style.transform = `translate(${x - x0}px, ${y - y0 + scrollY - scroll0}px) scale(1.02)`;
+      el.style.pointerEvents = "none";
+      const under = document.elementFromPoint(x, y);
+      el.style.pointerEvents = "";
+      const over = under && under.closest(".card.pinned");
+      unmark();
+      target = null;
+      if (over && over !== el) {
+        const r = over.getBoundingClientRect();
+        after = y > r.top + r.height / 2;
+        target = over.dataset.id;
+        over.classList.add(after ? "drop-after" : "drop-before");
+      }
+    };
+    // held near the top or bottom of the screen: keep scrolling
+    const edge = () => {
+      const d = y < 90 ? -10 : y > innerHeight - 90 ? 10 : 0;
+      if (d) { scrollBy(0, d); place(); }
+      frame = requestAnimationFrame(edge);
+    };
+    frame = requestAnimationFrame(edge);
+    const move = ev => { x = ev.clientX; y = ev.clientY; place(); };
+    const end = ev => {
+      cancelAnimationFrame(frame);
+      grip.removeEventListener("pointermove", move);
+      grip.removeEventListener("pointerup", end);
+      grip.removeEventListener("pointercancel", end);
+      el.classList.remove("dragging");
+      el.style.transform = "";
+      document.body.classList.remove("sorting");
+      unmark();
+      if (ev.type === "pointerup" && target) movePin(p.id, target, after);
+    };
+    grip.addEventListener("pointermove", move);
+    grip.addEventListener("pointerup", end);
+    grip.addEventListener("pointercancel", end);
+  }
+  async function keyMove(e, p) {
+    if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+    e.preventDefault();
+    const ids = orderedPins().map(x => x.id);
+    const i = ids.indexOf(p.id), j = i + (e.key === "ArrowUp" ? -1 : 1);
+    if (i < 0 || j < 0 || j >= ids.length) return;
+    await movePin(p.id, ids[j], e.key === "ArrowDown");
+    const g = document.querySelector(`.card[data-id="${CSS.escape(p.id)}"] .grip`);
+    if (g) g.focus();
   }
 
   // ---------- visited ----------
@@ -1714,8 +1821,8 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
       out.sort((a, b) => km(a) - km(b) || byName(a, b));
     } else if (filt.sort === "name") out.sort(byName);
     else out.sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")) || byName(a, b));
-    // 우선 (pinned) cards always come first, each group keeping the chosen order
-    return [...out.filter(p => p.pinned), ...out.filter(p => !p.pinned)];
+    // 우선 (pinned) cards always come first, in the order set by dragging; the rest keep the chosen sort
+    return [...out.filter(p => p.pinned).sort(byPinOrder), ...out.filter(p => !p.pinned)];
   }
 
   // 상암동(DMC) 기준 거리. 네이버 좌표가 없으면 구청 위치로 어림한다.
@@ -1779,7 +1886,9 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
       readOnly ? (p.pinned ? h("span", { class: "pin-btn on" }, svg(ICON.tackOn), "우선") : null)
         : h("button", { class: "pin-btn" + (p.pinned ? " on" : ""), type: "button", "aria-pressed": p.pinned ? "true" : "false",
           "aria-label": p.pinned ? `${title} 우선 고정 풀기` : `${title} 맨 위에 우선으로 고정`, onclick: () => togglePin(p) },
-          svg(p.pinned ? ICON.tackOn : ICON.tack), p.pinned ? "우선" : "고정")));
+          svg(p.pinned ? ICON.tackOn : ICON.tack), p.pinned ? "우선" : "고정"),
+      !readOnly && p.pinned && pinCount > 1 ? h("button", { class: "grip", type: "button", "aria-label": `${title} 순서 바꾸기: 끌어서 옮기거나 위아래 화살표 키`,
+        onpointerdown: e => startDrag(e, p), onkeydown: e => keyMove(e, p) }, svg(ICON.grip)) : null));
     info.append(h("h3", { class: "name" }, title, !p.name && (p.menus || []).length ? h("span", { class: "undecided", text: "식당 미정" }) : null));
     if (p.catchtable || p.tabling) info.append(h("div", { class: "book" },
       p.catchtable ? h("a", { class: "ct-btn", href: p.catchtable, target: "_blank", rel: "noopener noreferrer", "aria-label": `${title} 캐치테이블에서 예약하기` }, svg(ICON.cal), "캐치테이블 예약") : null,
@@ -1859,6 +1968,7 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
     document.body.classList.toggle("has-items", items.length > 0);
     rebuildFilterOptions(items);
     const shown = applyFilters(items);
+    pinCount = shown.filter(p => p.pinned).length;
     $("grid").replaceChildren(...shown.map(card));
     fresh = new Set();
     $("filters").hidden = store.mode === "locked";
