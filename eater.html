@@ -3,23 +3,30 @@
 <style>
 /* Layout: phone-first single column — composer card, sticky search + 3 filters, then a list of
    horizontal place cards (info left, square photo right); 2–3 columns of the same cards on wide screens.
+   Look: Apple's iPhone pages — light grey ground with a soft colour glow at the top, white cards,
+   frosted sticky bar, and one brand gradient (wordmark, main button, the composer while Claude works).
    Tokens are documented in DESIGN.md. Light theme only, by request. */
 @font-face { font-family: "Paperlogy"; src: url("fonts/Paperlogy-4Regular.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
 @font-face { font-family: "Paperlogy"; src: url("fonts/Paperlogy-6SemiBold.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
 @font-face { font-family: "Paperlogy"; src: url("fonts/Paperlogy-8ExtraBold.woff2") format("woff2"); font-weight: 800; font-style: normal; font-display: swap; }
 
 :root {
-  --ground: #FFF6F5;
+  --ground: #F5F5F7;
   --paper: #FFFFFF;
-  --well: #FFF0EE;
-  --line: #F2E1DF;
-  --ink: #2A2630;
-  --ink-2: #6B6470;
+  --well: #F2F2F7;
+  --line: #E5E5EA;
+  --ink: #1D1D1F;
+  --ink-2: #6E6E73;
+  --glass: rgb(245 245 247 / .78);
+  /* brand gradient: light for borders and glow, deeper versions where text must stay readable */
+  --grad: linear-gradient(100deg, #FF8A4C, #FF4F8B 35%, #A35BFF 68%, #4C8DFF);
+  --grad-loop: linear-gradient(90deg, #FF8A4C, #FF4F8B, #A35BFF, #4C8DFF, #FF8A4C);
+  --grad-text: linear-gradient(100deg, #F0552B, #E23A7A 40%, #8A3FF0 75%, #3D6BF0);
+  --grad-btn: linear-gradient(100deg, #D9301F, #C9306A 55%, #7A3BE0);
   --tomato: #DF3427;
   --tomato-soft: #FFE3E0;
   --tomato-ink: #B3261B;
   --butter: #FFD84D;
-  --butter-soft: #FFE98F;
   --butter-ink: #4A3600;
   --leaf: #0E9F5F;
   --leaf-soft: #E2F5EB;
@@ -27,8 +34,7 @@
   --grape-soft: #ECEAFF;
   --grape-ink: #4A3FB5;
   --danger: #C42B20;
-  /* warm, strawberry-tinted shadow rather than grey */
-  --shadow: 0 1px 1px rgb(150 60 50 / .05), 0 10px 24px -16px rgb(150 60 50 / .38);
+  --shadow: 0 1px 2px rgb(0 0 0 / .04), 0 10px 28px -18px rgb(0 0 0 / .22);
 
   --font: "Paperlogy", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif;
   --t-logo: 1.75rem;
@@ -50,7 +56,13 @@
 [hidden] { display: none !important; }
 html { -webkit-text-size-adjust: 100%; }
 body {
-  background: var(--ground);
+  /* the glow at the top of Apple's iPhone pages, fading into the grey ground */
+  background:
+    radial-gradient(480px 340px at 0% -40px, rgb(255 138 76 / .28), transparent 70%),
+    radial-gradient(520px 360px at 55% -140px, rgb(255 79 139 / .20), transparent 70%),
+    radial-gradient(520px 400px at 100% -60px, rgb(120 110 255 / .26), transparent 70%),
+    var(--ground);
+  background-repeat: no-repeat;
   color: var(--ink);
   font-family: var(--font);
   font-size: var(--t-body);
@@ -65,7 +77,9 @@ body::before {
   inset: 0 0 auto;
   height: env(safe-area-inset-top, 0px);
   z-index: 10;
-  background: var(--ground);
+  background: var(--glass);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
 }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
@@ -85,16 +99,18 @@ button { cursor: pointer; }
 .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 20px 14px; }
 .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .brand svg { width: 46px; height: 46px; flex: none; transform: rotate(-6deg); }
-/* the wordmark sits on a butter highlighter stroke */
 .brand h1 {
   display: inline-block;
   margin: 0;
-  padding: 0 3px;
   font-size: var(--t-logo);
   font-weight: 800;
-  line-height: 1.1;
+  line-height: 1.15;
   letter-spacing: -.04em;
-  background: linear-gradient(transparent 55%, var(--butter-soft) 55%, var(--butter-soft) 90%, transparent 90%);
+  background: var(--grad-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
 }
 .brand p { margin: 4px 0 0; color: var(--ink-2); font-size: var(--t-label); line-height: 1.35; }
 .tally {
@@ -120,7 +136,9 @@ button { cursor: pointer; }
 
 /* ---------- composer ---------- */
 .composer {
+  position: relative;
   background: var(--paper);
+  border: 2px solid transparent;
   border-radius: var(--r-card);
   box-shadow: var(--shadow);
   padding: 16px;
@@ -128,6 +146,24 @@ button { cursor: pointer; }
   grid-template-columns: minmax(0, 1fr);
   gap: 10px;
 }
+/* gradient edge while writing; while Claude organizes it flows and glows, like Siri */
+.composer:focus-within, .composer.thinking {
+  background: linear-gradient(var(--paper), var(--paper)) padding-box, var(--grad-loop) border-box;
+  background-size: auto, 200% 100%;
+}
+.composer.thinking { animation: flow 2.4s linear infinite; }
+.composer.thinking::after {
+  content: "";
+  position: absolute; inset: 8px; z-index: -1;
+  border-radius: inherit;
+  background: var(--grad-loop);
+  background-size: 200% 100%;
+  filter: blur(22px);
+  opacity: .55;
+  animation: glow 2.4s linear infinite;
+}
+@keyframes flow { from { background-position: 0 0, 0% 0; } to { background-position: 0 0, 200% 0; } }
+@keyframes glow { from { background-position: 0% 0; } to { background-position: 200% 0; } }
 .composer .title { font-size: var(--t-title); font-weight: 800; line-height: 1.3; }
 .composer textarea {
   width: 100%;
@@ -140,7 +176,7 @@ button { cursor: pointer; }
   line-height: 1.55;
 }
 .composer textarea::placeholder, .field input::placeholder, .reel-field input::placeholder { color: var(--ink-2); opacity: 1; }
-.composer textarea:focus { outline: none; border-color: var(--tomato); background: var(--paper); }
+.composer textarea:focus { outline: none; border-color: var(--line); background: var(--paper); }
 .reel-row { display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; }
 .check { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; cursor: pointer; font-size: var(--t-value); user-select: none; }
 .check input { width: 20px; height: 20px; margin: 0; accent-color: var(--tomato); cursor: pointer; }
@@ -180,8 +216,8 @@ body.has-items .composer:not(:focus-within) .tips { display: none; }
 }
 .btn:active { transform: scale(.97); }
 .btn svg { width: 18px; height: 18px; flex: none; }
-.btn.primary { background: var(--tomato); color: #FFFFFF; font-weight: 800; font-size: var(--t-body); padding-inline: 24px; }
-.btn.primary:hover { background: color-mix(in oklab, var(--tomato) 90%, var(--ink)); }
+.btn.primary { background: var(--grad-btn); color: #FFFFFF; font-weight: 800; font-size: var(--t-body); padding-inline: 24px; }
+.btn.primary:hover { filter: brightness(.94); }
 .btn.primary[disabled] { opacity: .6; cursor: progress; }
 .btn.secondary { background: var(--well); color: var(--ink); }
 .btn.secondary:hover { background: var(--tomato-soft); }
@@ -212,7 +248,9 @@ input[type=file].sr-only:focus-visible + label { outline: 3px solid var(--tomato
   position: sticky;
   top: env(safe-area-inset-top, 0px);
   z-index: 5;
-  background: var(--ground);
+  background: var(--glass);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
   margin-top: 12px;
   border-bottom: 1px solid transparent;
   transition: border-color .2s;
@@ -230,7 +268,7 @@ input[type=file].sr-only:focus-visible + label { outline: 3px solid var(--tomato
   height: 44px;
   border: 1.5px solid transparent;
   background: var(--paper);
-  box-shadow: 0 1px 2px rgb(150 60 50 / .08);
+  box-shadow: 0 1px 2px rgb(0 0 0 / .06);
   border-radius: var(--r-pill);
   padding: 0 30px 0 14px;
   appearance: none;
@@ -1355,6 +1393,7 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
 
     const ctl = new AbortController();
     busy = ctl;
+    $("composer").classList.add("thinking");
     $("go").textContent = "멈추기";
     $("raw").readOnly = true;
     setStatus(working(sample || parseOnServer ? "Claude가 정리하는 중…" : "정리하는 중…"));
@@ -1426,6 +1465,7 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
       else setStatus("담지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.", true);
     } finally {
       busy = null;
+      $("composer").classList.remove("thinking");
       $("go").textContent = "정리해서 담기";
       $("raw").readOnly = false;
     }

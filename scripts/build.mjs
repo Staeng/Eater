@@ -27,7 +27,7 @@ const html = `<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="먹고 싶은 곳을 두서없이 적으면 Claude가 카드로 정리해 주는 맛집 위시리스트">
-<meta name="theme-color" content="#FFF6F5">
+<meta name="theme-color" content="#F5F5F7">
 <meta name="color-scheme" content="light">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Eater">
