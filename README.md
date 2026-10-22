@@ -25,7 +25,7 @@
    | --- | --- | --- |
    | `ANTHROPIC_API_KEY` | https://console.anthropic.com 에서 만든 API 키 | 예 (없으면 간단 정리 모드로만 동작) |
    | `APP_PASSCODE` | 앱에 들어갈 때 쓸 비밀번호 | 강력 권장 (없으면 주소를 아는 누구나 쓰고 지울 수 있음) |
-   | `EATER_MODEL` | 기본값 `claude-opus-5-5`. 더 싸게 쓰려면 `claude-haiku-5-5` | 아니요 |
+   | `EATER_MODEL` | 기본값 `claude-haiku-5-5`. 더 꼼꼼한 판단이 필요하면 `claude-opus-5-5` | 아니요 |
 
 3. **Deploy**를 누릅니다.
 4. 프로젝트의 **Storage** 탭 → **Create Database** → **Upstash for Redis** → 이 프로젝트에 **Connect** 합니다.
@@ -37,8 +37,8 @@
 
 ### 비용
 
-한 번 정리할 때 Claude에 보내는 양은 입력 약 3천 토큰, 출력 수백 토큰이에요.
-`claude-opus-5-5`는 한 번에 약 30~40원, `claude-haiku-5-5`는 약 1원 정도예요(사진을 넣으면 조금 더). Upstash Redis와 Vercel은 개인 사용량이면 무료 요금제로 충분해요.
+한 곳을 담을 때 Claude를 두 번 불러요(메모 정리, 캐치테이블·테이블링 판단).
+기본 모델 `claude-haiku-5-5`로 한 곳에 약 2~3원이에요(`claude-opus-5-5`로 바꾸면 약 80원). Upstash Redis와 Vercel은 개인 사용량이면 무료 요금제로 충분해요.
 
 ## 동작 방식
 
@@ -52,7 +52,7 @@
 | 사진 | `api/photo.js` | 폰에서 줄인 JPEG을 저장하고 보여 줌 |
 | 잠금 | `lib/auth.js` | `APP_PASSCODE`와 맞는지 확인 |
 
-Claude 요청은 `claude-opus-5-5`, effort `low`, 구조화 출력(JSON 스키마)을 쓰고, 안전 분류기가 거절하면 서버에서 다른 모델로 넘기는 `fallbacks: "default"`를 켰어요. 계정이 이 기능을 받지 않으면 자동으로 빼고 다시 요청합니다.
+Claude 요청은 `claude-haiku-5-5`, effort `low`, 구조화 출력(JSON 스키마)을 써요. Opus 같은 모델로 바꾸면 안전 분류기가 거절할 때 서버에서 다른 모델로 넘기는 `fallbacks: "default"`도 켜지고, 계정이 이 기능을 받지 않으면 자동으로 빼고 다시 요청합니다.
 Claude를 쓸 수 없을 때(키 없음, 사용량 초과 등)는 페이지 안의 간단 정리기(정규식)로 담고, 카드의 연필 버튼으로 고칠 수 있어요.
 
 권역은 서울시 생활권 기준으로 계산해요.
