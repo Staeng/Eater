@@ -19,11 +19,11 @@ export default async function handler(req, res) {
     if (!current) return res.status(404).json({ error: "not_found" });
     const draft = JSON.parse(JSON.stringify(current));
     // links already on the card count as written in the memo
-    await enrichPlace(draft, [current.raw, current.link].filter(Boolean).join("\n"));
+    const report = await enrichPlace(draft, [current.raw, current.link].filter(Boolean).join("\n"));
     if (!draft.link && draft.naverLink) draft.link = draft.naverLink;
     const next = { ...current, ...cleanPlace(draft, true), id, createdAt: current.createdAt };
     await putPlace(next);
-    return res.status(200).json({ place: next });
+    return res.status(200).json({ place: next, report });
   } catch (err) {
     console.error("enrich:", err);
     return res.status(500).json({ error: "failed" });
