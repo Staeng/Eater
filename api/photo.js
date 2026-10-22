@@ -17,7 +17,8 @@ export default async function handler(req, res) {
       const m = stored && stored.match(DATA_URL);
       if (!m) return res.status(404).end();
       res.setHeader("Content-Type", m[1]);
-      res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+      // browser-only cache: a shared CDN copy would outlive the card when it is deleted
+      res.setHeader("Cache-Control", "private, max-age=31536000, immutable");
       return res.status(200).send(Buffer.from(m[2], "base64"));
     }
 
