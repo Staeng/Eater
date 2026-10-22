@@ -324,12 +324,33 @@ input[type=file].sr-only:focus-visible + label { outline: 3px solid var(--tomato
   grid-template-columns: minmax(0, 1fr) 108px;
   grid-template-areas: "info thumb" "foot foot";
   gap: 0 14px;
-  padding: 16px 16px 6px 18px;
+  padding: 14px 14px 4px 16px;
   background: var(--paper);
+  border: 2px solid transparent;
   border-radius: var(--r-card);
   box-shadow: var(--shadow);
   min-width: 0;
 }
+/* 우선 cards sit at the top of the list and wear the brand gradient as their edge */
+.card.pinned { background: linear-gradient(var(--paper), var(--paper)) padding-box, var(--grad) border-box; }
+.pin-btn {
+  position: relative; z-index: 2;
+  display: inline-flex; align-items: center; gap: 3px;
+  min-height: 26px;
+  padding: 0 10px 0 7px;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: var(--well);
+  color: var(--ink-2);
+  font-size: var(--t-label);
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+.pin-btn svg { width: 14px; height: 14px; flex: none; }
+.pin-btn::after { content: ""; position: absolute; inset: -9px -3px; }
+.pin-btn:hover { color: var(--ink); }
+.pin-btn.on { background: var(--grad-btn); color: #FFFFFF; }
 .card.pop { animation: pop .45s cubic-bezier(.3, 1.4, .5, 1); }
 @keyframes pop { from { transform: translateY(8px) scale(.97); opacity: .4; } to { transform: none; opacity: 1; } }
 .card .stretch { position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
@@ -884,6 +905,8 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
     trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/></svg>',
     check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
     play: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5Z"/></svg>',
+    tack: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3.5h6l-1 5.5 3.5 3.5h-11L10 9z"/><path d="M12 12.5V21"/></svg>',
+    tackOn: '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3.5h6l-1 5.5 3.5 3.5h-11L10 9z"/><path d="M12 12.5V21" fill="none"/></svg>',
     cal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14" rx="3"/><path d="M8 3.5v4M16 3.5v4M4 10h16"/></svg>',
     queue: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="7" r="2.5"/><circle cx="16" cy="7" r="2.5"/><path d="M3.5 19c0-3 2-5 4.5-5s4.5 2 4.5 5M11.5 19c0-3 2-5 4.5-5s4.5 2 4.5 5"/></svg>',
   };
@@ -1507,11 +1530,24 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
     el.scrollIntoView({ block: "center", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
   });
 
+  // ---------- 우선 (pin) ----------
+  async function togglePin(p) {
+    const on = !p.pinned;
+    try {
+      if (on) fresh = new Set([p.id]);
+      await store.update(p.id, { pinned: on });
+      showToast(on ? `${withObj(titleOf(p) || "이 곳")} 맨 위에 고정했어요` : "고정을 풀었어요");
+      const moved = on && document.querySelector(`.card[data-id="${CSS.escape(p.id)}"]`);
+      if (moved) moved.scrollIntoView({ block: "center", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    } catch { showToast("바꾸지 못했어요. 다시 눌러 주세요."); }
+  }
+
   // ---------- visited ----------
   async function markVisited(p) {
     try {
-      await store.update(p.id, { visited: true, visitedAt: new Date().toISOString() });
-      showToast(`${withObj(titleOf(p) || "이 곳")} 다녀온 곳으로 옮겼어요`, "되돌리기", () => store.update(p.id, { visited: false, visitedAt: null }).catch(() => {}));
+      // a visited place stops being 우선; undo puts both back
+      await store.update(p.id, { visited: true, visitedAt: new Date().toISOString(), pinned: false });
+      showToast(`${withObj(titleOf(p) || "이 곳")} 다녀온 곳으로 옮겼어요`, "되돌리기", () => store.update(p.id, { visited: false, visitedAt: null, pinned: !!p.pinned }).catch(() => {}));
     } catch { showToast("옮기지 못했어요. 다시 눌러 주세요."); }
   }
   async function goAgain(p) {
@@ -1628,7 +1664,8 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
       out.sort((a, b) => km(a) - km(b) || byName(a, b));
     } else if (filt.sort === "name") out.sort(byName);
     else out.sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")) || byName(a, b));
-    return out;
+    // 우선 (pinned) cards always come first, each group keeping the chosen order
+    return [...out.filter(p => p.pinned), ...out.filter(p => !p.pinned)];
   }
 
   // 상암동(DMC) 기준 거리. 네이버 좌표가 없으면 구청 위치로 어림한다.
@@ -1669,14 +1706,18 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
     const cat = CAT[p.category] || CAT["기타"];
     const go = mapHref(p);
     const title = p.name || (p.menus || [])[0] || "이름 없는 맛집";
-    const el = h("article", { class: "card" + (go ? " linked" : "") + (fresh.has(p.id) ? " pop" : ""), style: `--hue:${cat.hue}`, "data-id": p.id });
+    const el = h("article", { class: "card" + (go ? " linked" : "") + (p.pinned ? " pinned" : "") + (fresh.has(p.id) ? " pop" : ""), style: `--hue:${cat.hue}`, "data-id": p.id });
     if (go) el.append(h("a", { class: "stretch", href: go.href, target: "_blank", rel: "noopener noreferrer", "aria-label": `${title}, ${go.says}` }));
 
     // info (left)
     const info = h("div", { class: "info" });
     info.append(h("div", { class: "tags" },
       h("span", { class: "cat" }, h("span", { "aria-hidden": "true", text: cat.emoji }), cat.key),
-      p.example ? h("span", { class: "example", text: "예시" }) : null));
+      p.example ? h("span", { class: "example", text: "예시" }) : null,
+      readOnly ? (p.pinned ? h("span", { class: "pin-btn on" }, svg(ICON.tackOn), "우선") : null)
+        : h("button", { class: "pin-btn" + (p.pinned ? " on" : ""), type: "button", "aria-pressed": p.pinned ? "true" : "false",
+          "aria-label": p.pinned ? `${title} 우선 고정 풀기` : `${title} 맨 위에 우선으로 고정`, onclick: () => togglePin(p) },
+          svg(p.pinned ? ICON.tackOn : ICON.tack), p.pinned ? "우선" : "고정")));
     info.append(h("h3", { class: "name" }, title, !p.name && (p.menus || []).length ? h("span", { class: "undecided", text: "식당 미정" }) : null));
     if (p.catchtable || p.tabling) info.append(h("div", { class: "book" },
       p.catchtable ? h("a", { class: "ct-btn", href: p.catchtable, target: "_blank", rel: "noopener noreferrer", "aria-label": `${title} 캐치테이블에서 예약하기` }, svg(ICON.cal), "캐치테이블 예약") : null,
