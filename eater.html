@@ -17,11 +17,18 @@
   --ink-2: #6B6470;
   --tomato: #DF3427;
   --tomato-soft: #FFE3E0;
+  --tomato-ink: #B3261B;
   --butter: #FFD84D;
+  --butter-soft: #FFE98F;
   --butter-ink: #4A3600;
   --leaf: #0E9F5F;
+  --leaf-soft: #E2F5EB;
+  --leaf-ink: #0A6B40;
+  --grape-soft: #ECEAFF;
+  --grape-ink: #4A3FB5;
   --danger: #C42B20;
-  --shadow: 0 1px 2px rgb(42 38 48 / .06), 0 6px 18px -10px rgb(42 38 48 / .18);
+  /* warm, strawberry-tinted shadow rather than grey */
+  --shadow: 0 1px 1px rgb(150 60 50 / .05), 0 10px 24px -16px rgb(150 60 50 / .38);
 
   --font: "Paperlogy", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif;
   --t-logo: 1.75rem;
@@ -33,7 +40,8 @@
 
   --r-pill: 999px;
   --r-thumb: 14px;
-  --r-card: 20px;
+  --r-photo: 18px;
+  --r-card: 24px;
 
   color-scheme: light;
 }
@@ -76,17 +84,27 @@ button { cursor: pointer; }
 /* ---------- header ---------- */
 .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 20px 14px; }
 .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.brand svg { width: 40px; height: 40px; flex: none; }
-.brand h1 { margin: 0; font-size: var(--t-logo); font-weight: 800; line-height: 1; letter-spacing: -.03em; }
+.brand svg { width: 46px; height: 46px; flex: none; transform: rotate(-6deg); }
+/* the wordmark sits on a butter highlighter stroke */
+.brand h1 {
+  display: inline-block;
+  margin: 0;
+  padding: 0 3px;
+  font-size: var(--t-logo);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -.04em;
+  background: linear-gradient(transparent 55%, var(--butter-soft) 55%, var(--butter-soft) 90%, transparent 90%);
+}
 .brand p { margin: 4px 0 0; color: var(--ink-2); font-size: var(--t-label); line-height: 1.35; }
 .tally {
   flex: none;
   font-size: var(--t-small);
   font-weight: 600;
   background: var(--paper);
-  border: 1px solid var(--line);
   border-radius: var(--r-pill);
-  padding: 6px 14px;
+  box-shadow: var(--shadow);
+  padding: 7px 14px;
   font-variant-numeric: tabular-nums;
 }
 .tally b { color: var(--tomato); font-weight: 800; }
@@ -210,8 +228,9 @@ input[type=file].sr-only:focus-visible + label { outline: 3px solid var(--tomato
 .field select, .field input {
   width: 100%;
   height: 44px;
-  border: 1.5px solid var(--line);
+  border: 1.5px solid transparent;
   background: var(--paper);
+  box-shadow: 0 1px 2px rgb(150 60 50 / .08);
   border-radius: var(--r-pill);
   padding: 0 30px 0 14px;
   appearance: none;
@@ -261,12 +280,13 @@ input[type=file].sr-only:focus-visible + label { outline: 3px solid var(--tomato
   --tint: color-mix(in oklab, var(--hue) 16%, var(--paper));
   --tint-dot: color-mix(in oklab, var(--hue) 28%, var(--paper));
   --hue-ink: color-mix(in oklab, var(--hue) 52%, var(--ink));
+  --tilt: 2.5deg;
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 104px;
+  grid-template-columns: minmax(0, 1fr) 108px;
   grid-template-areas: "info thumb" "foot foot";
   gap: 0 14px;
-  padding: 14px 14px 6px 16px;
+  padding: 16px 16px 6px 18px;
   background: var(--paper);
   border-radius: var(--r-card);
   box-shadow: var(--shadow);
@@ -297,48 +317,67 @@ input[type=file].sr-only:focus-visible + label { outline: 3px solid var(--tomato
   font-weight: 800;
   line-height: 1.3;
   letter-spacing: -.01em;
+  text-wrap: balance;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
-.name-row { display: flex; align-items: center; gap: 4px 8px; flex-wrap: wrap; margin-top: 2px; min-width: 0; }
-.name-row .name { margin: 0; min-width: 0; }
+.book { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 2px 0; }
 .ct-btn {
   position: relative; z-index: 2;
-  display: inline-flex; align-items: center;
-  min-height: 26px;
-  padding: 0 10px;
+  display: inline-flex; align-items: center; gap: 4px;
+  min-height: 28px;
+  padding: 0 11px 0 9px;
   border-radius: var(--r-pill);
-  border: 1.5px solid var(--tomato);
-  color: var(--tomato);
-  background: var(--paper);
+  color: var(--tomato-ink);
+  background: var(--tomato-soft);
   font-size: var(--t-label);
   font-weight: 800;
   text-decoration: none;
   white-space: nowrap;
 }
-.ct-btn::after { content: ""; position: absolute; inset: -9px -4px; }
-.ct-btn:hover { background: var(--tomato-soft); }
-.ct-btn.tb { border-color: var(--ink); color: var(--ink); }
-.ct-btn.tb:hover { background: var(--well); }
+.ct-btn svg { width: 14px; height: 14px; flex: none; }
+.ct-btn::after { content: ""; position: absolute; inset: -8px -3px; }
+.ct-btn:hover { background: color-mix(in oklab, var(--tomato-soft) 80%, var(--tomato)); }
+.ct-btn.tb { background: var(--grape-soft); color: var(--grape-ink); }
+.ct-btn.tb:hover { background: color-mix(in oklab, var(--grape-soft) 85%, var(--grape-ink)); }
 .name .undecided { font-size: var(--t-label); font-weight: 600; color: var(--ink-2); margin-left: 6px; letter-spacing: 0; }
 .where { margin: 0; display: flex; align-items: center; gap: 4px 6px; flex-wrap: wrap; font-size: var(--t-small); color: var(--ink-2); line-height: 1.45; }
 .where svg { width: 14px; height: 14px; flex: none; color: var(--tomato); }
 .area { color: var(--ink); font-weight: 600; }
 .dist { color: var(--tomato); font-weight: 600; font-variant-numeric: tabular-nums; }
-.menus { margin: 2px 0 0; font-size: var(--t-value); font-weight: 600; line-height: 1.45; }
+.menus { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; }
+.menus li { background: var(--well); border-radius: 8px; padding: 2px 8px; font-size: var(--t-small); font-weight: 600; line-height: 1.5; }
 .facts { margin: 4px 0 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 10px; font-size: var(--t-small); line-height: 1.45; }
 .facts dt { color: var(--ink-2); }
 .facts dd { margin: 0; font-weight: 600; }
 .facts dd small { display: block; font-size: var(--t-label); font-weight: 400; color: var(--ink-2); }
 .memo { margin: 2px 0 0; font-size: var(--t-small); color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-.thumb {
+/* the photo is a snapshot taped onto the card: tilted (alternating per card), with a strip of
+   washi tape in the category's colour. This is the one decorative move; the rest stays quiet. */
+.snap {
   grid-area: thumb;
   position: relative;
   align-self: start;
-  width: 104px;
-  aspect-ratio: 1;
+  width: 108px;
   max-width: 100%;
-  border-radius: var(--r-thumb);
+  margin-top: 4px;
+  transform: rotate(var(--tilt));
+}
+.list > .card:nth-child(even) { --tilt: -2.5deg; }
+.tape {
+  position: absolute; left: -12px; top: 10px; z-index: 1;
+  width: 46px; height: 16px;
+  background: color-mix(in oklab, var(--hue) 45%, var(--paper));
+  opacity: .85;
+  transform: rotate(-38deg);
+  border-radius: 2px;
+}
+.thumb {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: var(--r-photo);
+  box-shadow: 0 8px 16px -8px rgb(90 30 20 / .45);
   overflow: hidden;
   background-color: var(--tint);
   background-image: radial-gradient(var(--tint-dot) 1.4px, transparent 1.6px);
@@ -349,7 +388,7 @@ input[type=file].sr-only:focus-visible + label { outline: 3px solid var(--tomato
 .thumb .emoji { font-size: 46px; line-height: 1; }
 .thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .sticker {
-  position: absolute; right: -2px; top: -2px; z-index: 1;
+  position: absolute; right: -10px; top: -10px; z-index: 1;
   min-width: 46px; height: 46px; padding: 0 6px;
   border-radius: 50%;
   display: grid; place-items: center;
@@ -368,16 +407,18 @@ input[type=file].sr-only:focus-visible + label { outline: 3px solid var(--tomato
 .foot {
   grid-area: foot;
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
-  margin-top: 10px;
+  margin-top: 12px;
   padding-top: 4px;
-  border-top: 1px solid var(--line);
+  border-top: 1.5px dashed var(--line);
   font-size: var(--t-label);
   color: var(--ink-2);
 }
 .foot .left, .foot .right { display: flex; align-items: center; gap: 4px; }
 .foot .left { min-height: 44px; }
-.go { display: inline-flex; align-items: center; gap: 5px; padding: 0 6px 0 0; color: var(--ink); font-weight: 600; white-space: nowrap; }
-.go i { width: 7px; height: 7px; border-radius: 50%; background: var(--leaf); }
+.go { display: inline-flex; align-items: center; gap: 4px; padding: 0 6px 0 0; color: var(--ink-2); font-weight: 600; white-space: nowrap; }
+.go svg { width: 14px; height: 14px; color: var(--leaf); }
+/* small phones: with a reel pill the footer is full, so the map hint keeps only its pin */
+@media (max-width: 380px) { .foot .left:has(.reel) .go span { display: none; } }
 .reel {
   position: relative; z-index: 2;
   display: inline-flex; align-items: center; gap: 4px;
@@ -473,26 +514,26 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
   position: relative; z-index: 2;
   display: inline-flex; align-items: center; gap: 4px;
   min-height: 32px;
-  padding: 0 10px 0 8px;
+  padding: 0 12px 0 9px;
   margin-right: 2px;
-  border: 1.5px solid var(--line);
+  border: 0;
   border-radius: var(--r-pill);
-  background: var(--paper);
-  color: var(--ink);
+  background: var(--leaf-soft);
+  color: var(--leaf-ink);
   font-size: var(--t-label);
   font-weight: 800;
   white-space: nowrap;
 }
 .visit-btn::after { content: ""; position: absolute; inset: -6px 0; }
 .visit-btn svg { width: 14px; height: 14px; color: var(--leaf); }
-.visit-btn:hover { background: var(--well); }
+.visit-btn:hover { background: color-mix(in oklab, var(--leaf-soft) 85%, var(--leaf)); }
 .visited-wrap { display: grid; gap: 12px; padding: 16px 12px 16px 16px; }
 .visited-head { display: flex; align-items: center; justify-content: space-between; }
 .visited-head h2 { margin: 0; font-size: var(--t-title); font-weight: 800; }
 .visited-list { list-style: none; margin: 0; padding: 0 4px 0 0; display: grid; gap: 12px; max-height: 70dvh; overflow: auto; }
 .v-row { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; gap: 10px; align-items: center; }
 .v-thumb {
-  position: relative; width: 52px; height: 52px; border-radius: 12px; overflow: hidden;
+  position: relative; width: 52px; height: 52px; border-radius: var(--r-thumb); overflow: hidden;
   background: color-mix(in oklab, var(--hue) 16%, var(--paper));
   display: grid; place-items: center; font-size: 26px;
 }
@@ -513,7 +554,7 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
 @media (min-width: 900px) {
   .top { padding-block: 28px 18px; }
   .card { grid-template-columns: minmax(0, 1fr) 116px; }
-  .thumb { width: 116px; }
+  .snap { width: 116px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -533,7 +574,7 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
         <ellipse cx="33.5" cy="28" rx="2.6" ry="1.6" fill="#FF6B5E" opacity=".6"/>
       </svg>
       <div>
-        <h1>Eater</h1>
+        <h1>먹킷리스트</h1>
         <p>먹고 싶은 곳, 잊기 전에 담아두기</p>
       </div>
     </div>
@@ -804,6 +845,8 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
     trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/></svg>',
     check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
     play: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5Z"/></svg>',
+    cal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14" rx="3"/><path d="M8 3.5v4M16 3.5v4M4 10h16"/></svg>',
+    queue: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="7" r="2.5"/><circle cx="16" cy="7" r="2.5"/><path d="M3.5 19c0-3 2-5 4.5-5s4.5 2 4.5 5M11.5 19c0-3 2-5 4.5-5s4.5 2 4.5 5"/></svg>',
   };
   const pad = n => String(n).padStart(2, "0");
   const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -1596,10 +1639,10 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
     info.append(h("div", { class: "tags" },
       h("span", { class: "cat" }, h("span", { "aria-hidden": "true", text: cat.emoji }), cat.key),
       p.example ? h("span", { class: "example", text: "예시" }) : null));
-    info.append(h("div", { class: "name-row" },
-      h("h3", { class: "name" }, title, !p.name && (p.menus || []).length ? h("span", { class: "undecided", text: "식당 미정" }) : null),
-      p.catchtable ? h("a", { class: "ct-btn", href: p.catchtable, target: "_blank", rel: "noopener noreferrer", "aria-label": `${title} 캐치테이블에서 예약하기` }, "캐치테이블 예약") : null,
-      p.tabling ? h("a", { class: "ct-btn tb", href: p.tabling, target: "_blank", rel: "noopener noreferrer", "aria-label": `${title} 테이블링에서 ${p.tablingMode === "예약" ? "예약하기" : "줄서기"}` }, p.tablingMode === "예약" ? "테이블링 예약" : "테이블링 줄서기") : null));
+    info.append(h("h3", { class: "name" }, title, !p.name && (p.menus || []).length ? h("span", { class: "undecided", text: "식당 미정" }) : null));
+    if (p.catchtable || p.tabling) info.append(h("div", { class: "book" },
+      p.catchtable ? h("a", { class: "ct-btn", href: p.catchtable, target: "_blank", rel: "noopener noreferrer", "aria-label": `${title} 캐치테이블에서 예약하기` }, svg(ICON.cal), "캐치테이블 예약") : null,
+      p.tabling ? h("a", { class: "ct-btn tb", href: p.tabling, target: "_blank", rel: "noopener noreferrer", "aria-label": `${title} 테이블링에서 ${p.tablingMode === "예약" ? "예약하기" : "줄서기"}` }, svg(p.tablingMode === "예약" ? ICON.cal : ICON.queue), p.tablingMode === "예약" ? "테이블링 예약" : "테이블링 줄서기") : null));
     const where = p.gu || "";
     if (where || p.area) {
       const km = filt.sort === "near" ? kmFromSangam(p) : null;
@@ -1607,7 +1650,7 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
         km != null ? h("span", { class: "dist", text: `상암에서 ${km < 10 ? km.toFixed(1) : Math.round(km)}km` }) : null));
     }
     const menuList = (p.menus || []).filter(m => m !== title);
-    if (menuList.length) info.append(h("p", { class: "menus", text: menuList.join(", ") }));
+    if (menuList.length) info.append(h("ul", { class: "menus", "aria-label": "먹고 싶은 메뉴" }, ...menuList.map(m => h("li", { text: m }))));
     const facts = h("dl", { class: "facts" });
     if (p.wantDate || p.wantWhen) {
       facts.append(h("dt", { text: "언제" }));
@@ -1618,7 +1661,7 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
     if (p.memo) info.append(h("p", { class: "memo", text: p.memo }));
     el.append(info);
 
-    // photo (right)
+    // photo (right), taped on
     const thumb = h("div", { class: "thumb" }, h("span", { class: "emoji", "aria-hidden": "true", text: cat.emoji }));
     const src = photoSrc(p);
     if (src) {
@@ -1626,15 +1669,16 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
       img.addEventListener("error", () => img.remove());
       thumb.append(img);
     }
+    const snap = h("div", { class: "snap" }, thumb, h("span", { class: "tape", "aria-hidden": "true" }));
     if (p.wantDate) {
       const n = daysUntil(p.wantDate);
-      thumb.append(h("span", { class: "sticker" + (n === 0 ? " today" : n < 0 ? " past" : ""), text: n === 0 ? "오늘" : n > 0 ? `D-${n}` : "지남", title: fmtDate(p.wantDate) }));
+      snap.append(h("span", { class: "sticker" + (n === 0 ? " today" : n < 0 ? " past" : ""), text: n === 0 ? "오늘" : n > 0 ? `D-${n}` : "지남", title: fmtDate(p.wantDate) }));
     }
-    el.append(thumb);
+    el.append(snap);
 
     // footer
     const left = h("div", { class: "left" });
-    if (go) left.append(h("span", { class: "go", "aria-hidden": "true" }, h("i"), "지도"));
+    if (go) left.append(h("span", { class: "go", "aria-hidden": "true" }, svg(ICON.pin), h("span", { text: "지도" })));
     if (p.reel) left.append(h("a", { class: "reel", href: p.reel, target: "_blank", rel: "noopener noreferrer", "aria-label": `${title} ${reelLabel(p.reel)} 보기` }, svg(ICON.play), reelLabel(p.reel)));
     const right = h("div", { class: "right" });
     if (!readOnly) {
