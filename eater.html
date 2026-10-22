@@ -1,91 +1,55 @@
 <title>Eater 먹킷리스트</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600&family=Jua&display=swap">
 <style>
-/* Layout: one column — scribble box on top, sticky filter strip, then a wrapping grid of place cards */
+/* Layout: phone-first single column — composer card, sticky search + 3 filters, then a list of
+   horizontal place cards (info left, square photo right); 2–3 columns of the same cards on wide screens.
+   Tokens are documented in DESIGN.md. Light theme only, by request. */
+@font-face { font-family: "Paperlogy"; src: url("fonts/Paperlogy-4Regular.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Paperlogy"; src: url("fonts/Paperlogy-6SemiBold.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: "Paperlogy"; src: url("fonts/Paperlogy-8ExtraBold.woff2") format("woff2"); font-weight: 800; font-style: normal; font-display: swap; }
+
 :root {
-  --bg: #FFF4F1;
-  --surface: #FFFFFF;
-  --well: #FFF0EC;
-  --ink: #2E2422;
-  --muted: #6F5E59;
-  --line: #F0D8D1;
-  --accent: #FF6A55;
-  --accent-ink: #FFFFFF;
-  --accent-soft: #FFE2DB;
-  --butter: #FFD45C;
-  --butter-ink: #4A3500;
-  --naver: #03C75A;
-  --danger: #D93A3A;
-  --shadow: 0 1px 0 rgba(78, 40, 32, .04), 0 10px 28px -14px rgba(78, 40, 32, .22);
-  --shadow-lift: 0 2px 0 rgba(78, 40, 32, .04), 0 18px 36px -16px rgba(78, 40, 32, .30);
+  --ground: #FFF6F5;
+  --paper: #FFFFFF;
+  --well: #FFF0EE;
+  --line: #F2E1DF;
+  --ink: #2A2630;
+  --ink-2: #6B6470;
+  --tomato: #DF3427;
+  --tomato-soft: #FFE3E0;
+  --butter: #FFD84D;
+  --butter-ink: #4A3600;
+  --leaf: #0E9F5F;
+  --danger: #C42B20;
+  --shadow: 0 1px 2px rgb(42 38 48 / .06), 0 6px 18px -10px rgb(42 38 48 / .18);
 
-  --font-display: "Jua", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
-  --font-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif;
+  --font: "Paperlogy", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif;
+  --t-logo: 1.75rem;
+  --t-title: 1.125rem;
+  --t-body: 1rem;
+  --t-value: .9375rem;
+  --t-small: .875rem;
+  --t-label: .8125rem;
 
-  --step--2: .8125rem;
-  --step--1: .875rem;
-  --step-0: 1rem;
-  --step-1: 1.125rem;
-  --step-2: 1.375rem;
-  --step-3: 2rem;
-
-  --r-xl: 26px;
-  --r-lg: 20px;
-  --r-md: 14px;
   --r-pill: 999px;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #1B1514;
-    --surface: #261E1C;
-    --well: #2F2522;
-    --ink: #F8ECE8;
-    --muted: #B39F99;
-    --line: #3B2F2C;
-    --accent: #FF7B67;
-    --accent-ink: #2A0F0A;
-    --accent-soft: #4A2620;
-    --butter: #FFD45C;
-    --butter-ink: #3A2A00;
-    --naver: #2BD47A;
-    --danger: #FF7070;
-    --shadow: 0 1px 0 rgba(0, 0, 0, .3), 0 10px 28px -14px rgba(0, 0, 0, .7);
-    --shadow-lift: 0 2px 0 rgba(0, 0, 0, .3), 0 18px 36px -16px rgba(0, 0, 0, .8);
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #1B1514;
-  --surface: #261E1C;
-  --well: #2F2522;
-  --ink: #F8ECE8;
-  --muted: #B39F99;
-  --line: #3B2F2C;
-  --accent: #FF7B67;
-  --accent-ink: #2A0F0A;
-  --accent-soft: #4A2620;
-  --butter: #FFD45C;
-  --butter-ink: #3A2A00;
-  --naver: #2BD47A;
-  --danger: #FF7070;
-  --shadow: 0 1px 0 rgba(0, 0, 0, .3), 0 10px 28px -14px rgba(0, 0, 0, .7);
-  --shadow-lift: 0 2px 0 rgba(0, 0, 0, .3), 0 18px 36px -16px rgba(0, 0, 0, .8);
-  color-scheme: dark;
+  --r-thumb: 14px;
+  --r-card: 20px;
+
+  color-scheme: light;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
 [hidden] { display: none !important; }
 html { -webkit-text-size-adjust: 100%; }
 body {
-  background: var(--bg);
+  background: var(--ground);
   color: var(--ink);
-  font-family: var(--font-body);
-  font-size: var(--step-0);
+  font-family: var(--font);
+  font-size: var(--t-body);
   line-height: 1.6;
   word-break: keep-all;
+  overflow-wrap: anywhere;
+  -webkit-font-smoothing: antialiased;
 }
 body::before {
   content: "";
@@ -93,188 +57,152 @@ body::before {
   inset: 0 0 auto;
   height: env(safe-area-inset-top, 0px);
   z-index: 10;
-  background: var(--bg);
+  background: var(--ground);
 }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
-:focus-visible { outline: 3px solid color-mix(in oklab, var(--accent) 70%, transparent); outline-offset: 2px; }
+:focus-visible { outline: 3px solid var(--tomato); outline-offset: 2px; }
 .sr-only {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
-
 .wrap {
-  max-width: 1120px;
+  max-width: 1080px;
   margin: 0 auto;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
 
 /* ---------- header ---------- */
-.top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding-block: 22px 14px;
-}
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 20px 14px; }
 .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.brand svg { width: 44px; height: 44px; flex: none; }
-.brand h1 {
-  margin: 0;
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: var(--step-3);
-  line-height: 1;
-  letter-spacing: -.01em;
-}
-.brand p { margin: 2px 0 0; color: var(--muted); font-size: var(--step--1); }
+.brand svg { width: 40px; height: 40px; flex: none; }
+.brand h1 { margin: 0; font-size: var(--t-logo); font-weight: 800; line-height: 1; letter-spacing: -.03em; }
+.brand p { margin: 4px 0 0; color: var(--ink-2); font-size: var(--t-label); line-height: 1.35; }
 .tally {
-  font-family: var(--font-display);
-  font-size: var(--step-0);
-  background: var(--surface);
-  border: 1.5px solid var(--line);
+  flex: none;
+  font-size: var(--t-small);
+  font-weight: 600;
+  background: var(--paper);
+  border: 1px solid var(--line);
   border-radius: var(--r-pill);
   padding: 6px 14px;
-  white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
-.tally b { color: var(--accent); font-weight: 400; }
+.tally b { color: var(--tomato); font-weight: 800; }
+.notice {
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: var(--paper);
+  border: 1px dashed var(--line);
+  color: var(--ink-2);
+  font-size: var(--t-small);
+}
 
 /* ---------- composer ---------- */
 .composer {
-  background: var(--surface);
-  border-radius: var(--r-xl);
+  background: var(--paper);
+  border-radius: var(--r-card);
   box-shadow: var(--shadow);
-  padding: 18px 18px 14px;
+  padding: 16px;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 10px;
 }
-.composer label.title {
-  font-family: var(--font-display);
-  font-size: var(--step-2);
-  line-height: 1.25;
-}
+.composer .title { font-size: var(--t-title); font-weight: 800; line-height: 1.3; }
 .composer textarea {
   width: 100%;
-  min-height: 92px;
+  min-height: 84px;
   resize: vertical;
   border: 2px solid transparent;
   background: var(--well);
-  border-radius: var(--r-lg);
-  padding: 14px 16px;
-  line-height: 1.6;
-  transition: border-color .15s, background .15s;
+  border-radius: var(--r-thumb);
+  padding: 12px 14px;
+  line-height: 1.55;
 }
-.composer textarea::placeholder { color: var(--muted); opacity: .9; }
-.composer textarea:focus { outline: none; border-color: var(--accent); background: var(--surface); }
-.reel-row {
-  display: flex;
-  align-items: center;
-  gap: 8px 12px;
-  flex-wrap: wrap;
-}
-.check {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 40px;
-  padding: 0 4px;
-  cursor: pointer;
-  font-size: var(--step-0);
-  user-select: none;
-}
-.check input { width: 20px; height: 20px; margin: 0; accent-color: var(--accent); cursor: pointer; }
-.reel-field { flex: 1 1 280px; min-width: 0; }
+.composer textarea::placeholder, .field input::placeholder, .reel-field input::placeholder { color: var(--ink-2); opacity: 1; }
+.composer textarea:focus { outline: none; border-color: var(--tomato); background: var(--paper); }
+.reel-row { display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; }
+.check { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; cursor: pointer; font-size: var(--t-value); user-select: none; }
+.check input { width: 20px; height: 20px; margin: 0; accent-color: var(--tomato); cursor: pointer; }
+.reel-field { flex: 1 1 260px; min-width: 0; }
 .reel-field input {
   width: 100%;
   height: 44px;
-  border: 2px solid var(--line);
-  background: var(--surface);
+  border: 1.5px solid var(--line);
+  background: var(--paper);
   border-radius: var(--r-pill);
   padding: 0 16px;
 }
-.reel-field input:focus { outline: none; border-color: var(--accent); }
-.composer-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px 16px;
-  flex-wrap: wrap;
-}
-.tips { margin: 0; color: var(--muted); font-size: var(--step--1); min-width: 0; flex: 1 1 260px; }
-.composer-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
-.attach-thumb {
-  position: relative;
-  width: 44px; height: 44px;
-  border-radius: 12px;
-  overflow: hidden;
-  border: 2px solid var(--line);
-}
+.reel-field input:focus { outline: none; border-color: var(--tomato); }
+.composer-bar { display: flex; align-items: center; gap: 8px; }
+.tips { margin: 0; color: var(--ink-2); font-size: var(--t-small); line-height: 1.45; }
+body.has-items .composer:not(:focus-within) .tips { display: none; }
+.attach-thumb { position: relative; width: 44px; height: 44px; border-radius: 12px; overflow: hidden; flex: none; border: 1.5px solid var(--line); }
 .attach-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .attach-thumb button {
-  position: absolute; top: 1px; right: 1px;
-  width: 18px; height: 18px;
-  border-radius: 50%;
-  border: 0;
-  background: color-mix(in oklab, var(--ink) 75%, transparent);
-  color: var(--surface);
-  font-size: 12px; line-height: 18px; padding: 0;
+  position: absolute; inset: auto 0 0 auto;
+  width: 22px; height: 22px; padding: 0;
+  border: 0; border-radius: 8px 0 0 0;
+  background: var(--ink); color: var(--paper);
+  font-size: 13px; line-height: 22px;
 }
 
 .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 44px;
   border: 0;
   border-radius: var(--r-pill);
-  padding: 10px 18px;
-  font-family: var(--font-display);
-  font-size: var(--step-0);
-  line-height: 1.2;
+  padding: 0 18px;
+  font-size: var(--t-value);
+  font-weight: 600;
   white-space: nowrap;
-  transition: transform .12s, background .15s, box-shadow .15s;
+  transition: transform .12s, background-color .15s;
 }
-.btn:active { transform: translateY(1px) scale(.98); }
+.btn:active { transform: scale(.97); }
 .btn svg { width: 18px; height: 18px; flex: none; }
-.btn.primary { background: var(--accent); color: var(--accent-ink); box-shadow: 0 6px 16px -8px var(--accent); padding-inline: 22px; }
-.btn.primary:hover { background: color-mix(in oklab, var(--accent) 88%, var(--ink)); }
-.btn.primary[disabled] { opacity: .65; cursor: progress; }
-.btn.ghost { background: var(--well); color: var(--ink); }
-.btn.ghost:hover { background: var(--accent-soft); }
-.btn.quiet { background: transparent; color: var(--muted); padding-inline: 10px; }
+.btn.primary { background: var(--tomato); color: #FFFFFF; font-weight: 800; font-size: var(--t-body); padding-inline: 24px; }
+.btn.primary:hover { background: color-mix(in oklab, var(--tomato) 90%, var(--ink)); }
+.btn.primary[disabled] { opacity: .6; cursor: progress; }
+.btn.secondary { background: var(--well); color: var(--ink); }
+.btn.secondary:hover { background: var(--tomato-soft); }
+.btn.quiet { background: transparent; color: var(--ink-2); padding-inline: 12px; }
 .btn.quiet:hover { color: var(--ink); }
+.composer-bar .grow { flex: 1; }
+input[type=file].sr-only:focus-visible + label { outline: 3px solid var(--tomato); outline-offset: 2px; }
 
-.status {
-  margin: 0;
-  min-height: 1.4em;
-  font-size: var(--step--1);
-  color: var(--muted);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+.status { margin: 0; min-height: 1.45em; font-size: var(--t-small); line-height: 1.45; color: var(--ink-2); display: flex; align-items: center; gap: 8px; }
+.status:empty { display: none; }
 .status.warn { color: var(--danger); }
 .dots { display: inline-flex; gap: 4px; }
-.dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: hop 1s infinite ease-in-out; }
+.dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--tomato); animation: hop 1s infinite ease-in-out; }
 .dots i:nth-child(2) { animation-delay: .15s; background: var(--butter); }
 .dots i:nth-child(3) { animation-delay: .3s; }
-@keyframes hop { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
+@keyframes hop { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-5px); } }
+
+/* ---------- lock ---------- */
+.lock { background: var(--paper); border-radius: var(--r-card); box-shadow: var(--shadow); padding: 20px 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; max-width: 420px; }
+.lock h2 { margin: 0; font-size: var(--t-title); font-weight: 800; }
+.lock p { margin: 0; color: var(--ink-2); font-size: var(--t-small); }
+.lock form { display: flex; gap: 8px; }
+.lock input { flex: 1; width: 0; min-width: 0; height: 44px; border: 1.5px solid var(--line); border-radius: var(--r-pill); padding: 0 16px; background: var(--well); }
+.lock input:focus { outline: none; border-color: var(--tomato); background: var(--paper); }
 
 /* ---------- filters ---------- */
 .filters {
   position: sticky;
   top: env(safe-area-inset-top, 0px);
   z-index: 5;
-  background: color-mix(in oklab, var(--bg) 92%, transparent);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  margin-top: 18px;
+  background: var(--ground);
+  margin-top: 12px;
+  border-bottom: 1px solid transparent;
+  transition: border-color .2s;
 }
+.filters.stuck { border-bottom-color: var(--line); }
 .filters-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.6fr) minmax(0, .9fr);
+  grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr));
   gap: 8px;
   padding-block: 10px;
 }
@@ -283,325 +211,243 @@ button { cursor: pointer; }
   width: 100%;
   height: 44px;
   border: 1.5px solid var(--line);
-  background: var(--surface);
+  background: var(--paper);
   border-radius: var(--r-pill);
-  padding: 0 36px 0 16px;
+  padding: 0 30px 0 14px;
   appearance: none;
   -webkit-appearance: none;
+  font-size: var(--t-value);
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.field input { padding: 0 16px 0 40px; }
-.field select:hover, .field input:hover { border-color: color-mix(in oklab, var(--accent) 40%, var(--line)); }
-.field select:focus, .field input:focus { outline: none; border-color: var(--accent); }
-.field.has-value select { border-color: var(--accent); background: var(--accent-soft); }
+.field input { padding: 0 14px 0 40px; }
+.field select:focus, .field input:focus { outline: none; border-color: var(--tomato); }
+.field.on select { border-color: var(--tomato); background: var(--tomato-soft); font-weight: 600; }
 .field.select::after {
   content: "";
-  position: absolute;
-  right: 16px; top: 50%;
+  position: absolute; right: 14px; top: 50%;
   width: 7px; height: 7px;
-  border-right: 2px solid var(--muted);
-  border-bottom: 2px solid var(--muted);
+  border-right: 2px solid var(--ink-2);
+  border-bottom: 2px solid var(--ink-2);
   transform: translateY(-70%) rotate(45deg);
   pointer-events: none;
 }
-.field .lens {
-  position: absolute; left: 14px; top: 50%;
-  width: 18px; height: 18px;
-  transform: translateY(-50%);
-  color: var(--muted);
-  pointer-events: none;
-}
+.field .lens { position: absolute; left: 14px; top: 50%; width: 18px; height: 18px; transform: translateY(-50%); color: var(--ink-2); pointer-events: none; }
 
 .resultbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px 12px;
-  flex-wrap: wrap;
-  padding-block: 4px 12px;
-  color: var(--muted);
-  font-size: var(--step--1);
+  display: flex; align-items: center; justify-content: space-between; gap: 4px 12px; flex-wrap: wrap;
+  padding-block: 2px 10px;
+  color: var(--ink-2);
+  font-size: var(--t-small);
 }
-.resultbar .left, .resultbar .right { display: flex; align-items: center; gap: 4px 10px; flex-wrap: wrap; }
+.resultbar > div { display: flex; align-items: center; gap: 4px 10px; flex-wrap: wrap; }
 .linkbtn {
-  border: 0; background: none; padding: 4px 2px;
-  color: var(--ink);
-  text-decoration: underline;
-  text-decoration-color: color-mix(in oklab, var(--accent) 60%, transparent);
-  text-underline-offset: 3px;
-  text-decoration-thickness: 2px;
+  border: 0; background: none; padding: 8px 2px;
+  color: var(--tomato); font-weight: 600;
+  text-decoration: underline; text-underline-offset: 3px;
 }
 .linkbtn.danger { color: var(--danger); }
 
 /* ---------- cards ---------- */
-.grid {
+.list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 18px;
-  padding-bottom: 40px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+  gap: 12px;
+  align-items: start;
+  padding-bottom: 48px;
 }
 .card {
   --hue: #9AA0A6;
-  --tint: color-mix(in oklab, var(--hue) 20%, var(--surface));
-  --tint-strong: color-mix(in oklab, var(--hue) 34%, var(--surface));
-  --hue-ink: color-mix(in oklab, var(--hue) 62%, var(--ink));
+  --tint: color-mix(in oklab, var(--hue) 16%, var(--paper));
+  --tint-dot: color-mix(in oklab, var(--hue) 28%, var(--paper));
+  --hue-ink: color-mix(in oklab, var(--hue) 52%, var(--ink));
   position: relative;
-  background: var(--surface);
-  border-radius: var(--r-lg);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 104px;
+  grid-template-areas: "info thumb" "foot foot";
+  gap: 0 14px;
+  padding: 14px 14px 6px 16px;
+  background: var(--paper);
+  border-radius: var(--r-card);
   box-shadow: var(--shadow);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
   min-width: 0;
-  transition: transform .2s cubic-bezier(.3, 1.4, .5, 1), box-shadow .2s;
 }
-.card.linked:hover { transform: translateY(-4px) rotate(-.4deg); box-shadow: var(--shadow-lift); }
-.card.pop { animation: pop .5s cubic-bezier(.3, 1.5, .5, 1); }
-@keyframes pop { from { transform: scale(.9) translateY(10px); } to { transform: none; } }
+.card.pop { animation: pop .45s cubic-bezier(.3, 1.4, .5, 1); }
+@keyframes pop { from { transform: translateY(8px) scale(.97); opacity: .4; } to { transform: none; opacity: 1; } }
 .card .stretch { position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
 .card .stretch:focus-visible { outline-offset: -3px; }
+.card.linked:active { transform: scale(.99); }
 
-.photo {
-  position: relative;
-  aspect-ratio: 4 / 3;
-  max-width: 100%;
-  background-color: var(--tint);
-  background-image: radial-gradient(var(--tint-strong) 1.6px, transparent 1.8px);
-  background-size: 18px 18px;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-}
-.photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.photo .emoji {
-  font-size: 64px;
-  line-height: 1;
-  filter: drop-shadow(0 6px 0 color-mix(in oklab, var(--hue) 25%, transparent));
-  transition: transform .25s cubic-bezier(.3, 1.6, .5, 1);
-}
-.card.linked:hover .photo .emoji { transform: rotate(-8deg) scale(1.08); }
-.cat-chip {
-  position: absolute;
-  left: 10px; bottom: 10px;
+.info { grid-area: info; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; align-content: start; }
+.tags { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.cat {
   display: inline-flex; align-items: center; gap: 4px;
-  background: var(--surface);
+  background: var(--tint);
   color: var(--hue-ink);
   border-radius: var(--r-pill);
-  padding: 4px 10px 4px 8px;
-  font-family: var(--font-display);
-  font-size: var(--step--1);
-  box-shadow: 0 2px 6px -2px rgba(0, 0, 0, .18);
+  padding: 2px 9px 2px 7px;
+  font-size: var(--t-label);
+  font-weight: 600;
+  line-height: 1.5;
 }
-.reel {
-  position: absolute;
-  right: 10px; bottom: 10px;
-  z-index: 2;
-  display: inline-flex; align-items: center; gap: 4px;
-  min-height: 32px;
-  padding: 4px 12px 4px 9px;
-  border-radius: var(--r-pill);
-  background: var(--ink);
-  color: var(--surface);
-  font-family: var(--font-display);
-  font-size: var(--step--1);
-  text-decoration: none;
-  box-shadow: 0 3px 8px -3px rgba(0, 0, 0, .35);
-  transition: transform .15s cubic-bezier(.3, 1.6, .5, 1);
+.example { font-size: var(--t-label); font-weight: 600; color: var(--ink-2); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 1px 8px; }
+.name {
+  margin: 2px 0 0;
+  font-size: var(--t-title);
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: -.01em;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
-.reel svg { width: 14px; height: 14px; color: var(--accent); }
-.reel:hover { transform: scale(1.06); }
+.name .undecided { font-size: var(--t-label); font-weight: 600; color: var(--ink-2); margin-left: 6px; letter-spacing: 0; }
+.where { margin: 0; display: flex; align-items: center; gap: 4px 6px; flex-wrap: wrap; font-size: var(--t-small); color: var(--ink-2); line-height: 1.45; }
+.where svg { width: 14px; height: 14px; flex: none; color: var(--tomato); }
+.area { color: var(--ink); font-weight: 600; }
+.menus { margin: 2px 0 0; font-size: var(--t-value); font-weight: 600; line-height: 1.45; }
+.facts { margin: 4px 0 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 10px; font-size: var(--t-small); line-height: 1.45; }
+.facts dt { color: var(--ink-2); }
+.facts dd { margin: 0; font-weight: 600; }
+.facts dd small { display: block; font-size: var(--t-label); font-weight: 400; color: var(--ink-2); }
+.memo { margin: 2px 0 0; font-size: var(--t-small); color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+.thumb {
+  grid-area: thumb;
+  position: relative;
+  align-self: start;
+  width: 104px;
+  aspect-ratio: 1;
+  max-width: 100%;
+  border-radius: var(--r-thumb);
+  overflow: hidden;
+  background-color: var(--tint);
+  background-image: radial-gradient(var(--tint-dot) 1.4px, transparent 1.6px);
+  background-size: 14px 14px;
+  display: grid;
+  place-items: center;
+}
+.thumb .emoji { font-size: 46px; line-height: 1; }
+.thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .sticker {
-  position: absolute;
-  right: 10px; top: 10px;
-  min-width: 54px; height: 54px;
-  padding: 0 8px;
+  position: absolute; right: -2px; top: -2px; z-index: 1;
+  min-width: 46px; height: 46px; padding: 0 6px;
   border-radius: 50%;
   display: grid; place-items: center;
   background: var(--butter);
   color: var(--butter-ink);
-  font-family: var(--font-display);
-  font-size: var(--step-1);
+  font-size: var(--t-value);
+  font-weight: 800;
   line-height: 1;
-  transform: rotate(8deg);
-  box-shadow: 0 3px 0 color-mix(in oklab, var(--butter) 55%, var(--ink));
+  transform: rotate(10deg);
+  box-shadow: 0 2px 0 rgb(74 54 0 / .25);
   font-variant-numeric: tabular-nums;
 }
-.sticker.today { background: var(--accent); color: var(--accent-ink); box-shadow: 0 3px 0 color-mix(in oklab, var(--accent) 55%, var(--ink)); }
-.sticker.past { background: var(--surface); color: var(--muted); box-shadow: none; border: 2px dashed var(--line); font-size: var(--step--1); }
-.example-tag {
-  position: absolute; left: 10px; top: 10px;
-  background: color-mix(in oklab, var(--ink) 72%, transparent);
-  color: var(--surface);
-  font-size: 12px;
-  letter-spacing: .04em;
-  padding: 2px 8px;
-  border-radius: var(--r-pill);
-}
+.sticker.today { background: var(--tomato); color: #FFFFFF; box-shadow: 0 2px 0 rgb(120 20 10 / .3); }
+.sticker.past { background: var(--paper); color: var(--ink-2); box-shadow: none; border: 1.5px dashed var(--line); font-size: var(--t-label); }
 
-.body { padding: 14px 16px 12px; display: grid; gap: 8px; flex: 1; align-content: start; }
-.name-row { display: flex; align-items: baseline; gap: 6px; min-width: 0; }
-.name {
-  margin: 0;
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: var(--step-2);
-  line-height: 1.2;
-  overflow-wrap: anywhere;
-  text-wrap: balance;
-}
-.name .undecided { font-family: var(--font-body); font-size: var(--step--2); color: var(--muted); margin-left: 6px; }
-.place {
-  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
-  color: var(--muted);
-  font-size: var(--step--1);
-}
-.place svg { width: 14px; height: 14px; flex: none; color: var(--accent); }
-.area-pill {
-  background: var(--tint);
-  color: var(--hue-ink);
-  border-radius: var(--r-pill);
-  padding: 1px 8px;
-  font-size: var(--step--2);
-  font-weight: 500;
-}
-.menus { display: flex; flex-wrap: wrap; gap: 6px; }
-.menus span {
-  background: var(--well);
-  border-radius: var(--r-pill);
-  padding: 3px 10px;
-  font-size: var(--step--1);
-  overflow-wrap: anywhere;
-}
-.facts {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 4px 12px;
-  margin: 2px 0 0;
-  font-size: var(--step-0);
-}
-.facts dt { color: var(--muted); font-size: var(--step--1); padding-top: 1px; }
-.facts dd { margin: 0; overflow-wrap: anywhere; font-weight: 500; }
-.facts dd small { display: block; color: var(--muted); font-size: var(--step--2); font-weight: 400; }
-.memo {
-  margin: 0;
-  font-size: var(--step--1);
-  color: var(--muted);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
 .foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 8px 10px 10px 16px;
-  border-top: 1.5px dashed var(--line);
-  font-size: var(--step--2);
-  color: var(--muted);
+  grid-area: foot;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  margin-top: 10px;
+  padding-top: 4px;
+  border-top: 1px solid var(--line);
+  font-size: var(--t-label);
+  color: var(--ink-2);
 }
-.go { display: inline-flex; align-items: center; gap: 6px; color: var(--ink); font-weight: 500; white-space: nowrap; }
-.go i { width: 8px; height: 8px; border-radius: 50%; background: var(--naver); flex: none; }
-.facts dd.added { font-weight: 400; color: var(--muted); font-size: var(--step--1); font-variant-numeric: tabular-nums; }
-.actions { position: relative; z-index: 2; display: flex; gap: 2px; }
+.foot .added { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.foot .right { display: flex; align-items: center; gap: 2px; }
+.go { display: inline-flex; align-items: center; gap: 5px; padding: 0 8px; color: var(--ink); font-weight: 600; white-space: nowrap; }
+.go i { width: 7px; height: 7px; border-radius: 50%; background: var(--leaf); }
+.reel {
+  position: relative; z-index: 2;
+  display: inline-flex; align-items: center; gap: 4px;
+  min-height: 32px;
+  padding: 0 11px 0 9px;
+  margin-right: 2px;
+  border-radius: var(--r-pill);
+  background: var(--tomato-soft);
+  color: var(--ink);
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.reel::after { content: ""; position: absolute; inset: -6px 0; }
+.reel svg { width: 13px; height: 13px; color: var(--tomato); }
 .icon-btn {
-  width: 34px; height: 34px;
+  position: relative; z-index: 2;
+  width: 44px; height: 44px;
   border: 0; border-radius: 50%;
   background: transparent;
-  color: var(--muted);
+  color: var(--ink-2);
   display: grid; place-items: center;
 }
-.icon-btn svg { width: 17px; height: 17px; }
+.icon-btn svg { width: 18px; height: 18px; }
 .icon-btn:hover { background: var(--well); color: var(--ink); }
-.icon-btn.confirm {
-  width: auto; padding: 0 12px; border-radius: var(--r-pill);
-  background: var(--danger); color: var(--surface);
-  font-family: var(--font-display); font-size: 13px;
-}
+.icon-btn.confirm { width: auto; padding: 0 12px; border-radius: var(--r-pill); background: var(--danger); color: #FFFFFF; font-weight: 800; font-size: var(--t-label); }
 
-/* ---------- empty / loading ---------- */
-.empty {
-  display: grid;
-  justify-items: center;
-  text-align: center;
-  gap: 6px;
-  padding: 48px 16px 64px;
-  color: var(--muted);
-}
-.empty .bowl { font-size: 54px; line-height: 1; }
-.empty h2 { margin: 6px 0 0; font-family: var(--font-display); font-weight: 400; font-size: var(--step-2); color: var(--ink); }
-.empty p { margin: 0; max-width: 34ch; }
+/* ---------- empty ---------- */
+.empty { display: grid; justify-items: center; text-align: center; gap: 6px; padding: 40px 16px 64px; color: var(--ink-2); }
+.empty .bowl { font-size: 48px; line-height: 1; }
+.empty h2 { margin: 6px 0 0; font-size: var(--t-title); font-weight: 800; color: var(--ink); }
+.empty p { margin: 0; max-width: 32ch; font-size: var(--t-small); }
 
 /* ---------- toast ---------- */
 .toast {
-  position: fixed;
-  left: 50%;
-  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  position: fixed; left: 50%; z-index: 30;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   transform: translateX(-50%);
-  z-index: 30;
   display: flex; align-items: center; gap: 12px;
-  max-width: calc(100% - 32px);
-  background: var(--ink);
-  color: var(--bg);
+  width: max-content; max-width: calc(100% - 32px);
+  background: var(--ink); color: var(--paper);
   border-radius: var(--r-pill);
-  padding: 10px 12px 10px 18px;
-  box-shadow: var(--shadow-lift);
-  font-size: var(--step--1);
+  padding: 8px 8px 8px 18px;
+  box-shadow: 0 10px 30px -10px rgb(42 38 48 / .5);
+  font-size: var(--t-small);
+  font-weight: 600;
 }
-.toast button {
-  border: 0; border-radius: var(--r-pill);
-  background: color-mix(in oklab, var(--bg) 18%, transparent);
-  color: var(--bg);
-  padding: 5px 12px;
-  font-family: var(--font-display);
-  white-space: nowrap;
-}
+.toast button { min-height: 36px; border: 0; border-radius: var(--r-pill); background: var(--butter); color: var(--butter-ink); padding: 0 14px; font-weight: 800; white-space: nowrap; }
 
 /* ---------- editor ---------- */
 dialog.editor {
-  border: 0;
-  padding: 0;
+  border: 0; padding: 0;
   width: min(560px, calc(100% - 24px));
   max-height: calc(100% - 32px);
-  border-radius: var(--r-xl);
-  background: var(--surface);
-  color: var(--ink);
-  box-shadow: var(--shadow-lift);
+  border-radius: var(--r-card);
+  background: var(--paper); color: var(--ink);
+  box-shadow: 0 20px 50px -20px rgb(42 38 48 / .45);
 }
-dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
-.editor form { display: grid; gap: 14px; padding: 20px; }
-.editor h2 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: var(--step-2); }
+dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
+.editor form { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; padding: 20px 16px 16px; }
+.editor h2 { margin: 0; font-size: var(--t-title); font-weight: 800; }
 .editor .row { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
-.editor label { display: grid; gap: 4px; font-size: var(--step--1); color: var(--muted); min-width: 0; }
+.editor label { display: grid; gap: 4px; font-size: var(--t-label); font-weight: 600; color: var(--ink-2); min-width: 0; }
 .editor input, .editor select, .editor textarea {
   width: 100%;
+  min-height: 44px;
   border: 1.5px solid var(--line);
-  border-radius: var(--r-md);
+  border-radius: var(--r-thumb);
   background: var(--well);
-  padding: 10px 12px;
+  padding: 9px 12px;
   color: var(--ink);
-  font-size: var(--step-0);
+  font-size: var(--t-body);
+  font-weight: 400;
 }
-.editor textarea { min-height: 64px; resize: vertical; }
-.editor input:focus, .editor select:focus, .editor textarea:focus { outline: none; border-color: var(--accent); background: var(--surface); }
-.editor .photo-edit { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.editor .photo-edit .thumb {
-  width: 76px; height: 57px; border-radius: 12px; overflow: hidden;
-  background: var(--well); display: grid; place-items: center; font-size: 28px;
-}
-.editor .photo-edit .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.editor .buttons { display: flex; justify-content: flex-end; gap: 8px; padding-top: 4px; }
+.editor textarea { min-height: 72px; resize: vertical; }
+.editor input:focus, .editor select:focus, .editor textarea:focus { outline: none; border-color: var(--tomato); background: var(--paper); }
+.editor .photo-edit { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.editor .photo-edit .preview { width: 64px; height: 64px; border-radius: var(--r-thumb); overflow: hidden; background: var(--well); display: grid; place-items: center; font-size: 30px; }
+.editor .photo-edit .preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.editor .buttons { display: flex; justify-content: flex-end; gap: 8px; }
 
-@media (max-width: 720px) {
-  .filters-row { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); }
-  .filters-row .search { order: -2; }
-  .filters-row #fSortWrap { order: -1; }
-  .composer textarea { min-height: 112px; }
-  .brand h1 { font-size: 1.75rem; }
-  .composer { padding: 16px 14px 12px; border-radius: var(--r-lg); }
-  .composer label.title { font-size: var(--step-1); }
-  .grid { gap: 14px; }
+@media (max-width: 640px) {
+  .filters-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .filters-row .search { grid-column: 1 / -1; }
+  .field select { padding: 0 26px 0 12px; font-size: var(--t-small); }
+  .field.select::after { right: 12px; }
+}
+@media (min-width: 900px) {
+  .top { padding-block: 28px 18px; }
+  .card { grid-template-columns: minmax(0, 1fr) 116px; }
+  .thumb { width: 116px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -612,13 +458,13 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
   <header class="top">
     <div class="brand">
       <svg viewBox="0 0 48 48" aria-hidden="true">
-        <path d="M24 5 C33 5 43 20 43 31 C43 39 36 43 24 43 C12 43 5 39 5 31 C5 20 15 5 24 5 Z" fill="var(--surface)" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round"/>
-        <rect x="13" y="30" width="22" height="13" rx="3" fill="var(--ink)"/>
-        <circle cx="18" cy="24" r="2.2" fill="var(--ink)"/>
-        <circle cx="30" cy="24" r="2.2" fill="var(--ink)"/>
-        <path d="M21.5 27.5 Q24 30 26.5 27.5" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"/>
-        <ellipse cx="14.5" cy="28" rx="2.6" ry="1.6" fill="var(--accent)" opacity=".55"/>
-        <ellipse cx="33.5" cy="28" rx="2.6" ry="1.6" fill="var(--accent)" opacity=".55"/>
+        <path d="M24 5 C33 5 43 20 43 31 C43 39 36 43 24 43 C12 43 5 39 5 31 C5 20 15 5 24 5 Z" fill="#FFFFFF" stroke="#2A2630" stroke-width="2.5" stroke-linejoin="round"/>
+        <rect x="13" y="30" width="22" height="13" rx="3" fill="#2A2630"/>
+        <circle cx="18" cy="24" r="2.2" fill="#2A2630"/>
+        <circle cx="30" cy="24" r="2.2" fill="#2A2630"/>
+        <path d="M21.5 27.5 Q24 30 26.5 27.5" fill="none" stroke="#2A2630" stroke-width="2" stroke-linecap="round"/>
+        <ellipse cx="14.5" cy="28" rx="2.6" ry="1.6" fill="#FF6B5E" opacity=".6"/>
+        <ellipse cx="33.5" cy="28" rx="2.6" ry="1.6" fill="#FF6B5E" opacity=".6"/>
       </svg>
       <div>
         <h1>Eater</h1>
@@ -628,9 +474,23 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
     <div class="tally" id="tally" aria-live="polite"><b>0</b>곳 담음</div>
   </header>
 
+  <p class="notice" id="notice" hidden></p>
+
+  <section class="lock" id="lock" aria-labelledby="lockTitle" hidden>
+    <h2 id="lockTitle">비밀번호를 입력해 주세요</h2>
+    <p>한 번만 입력하면 이 기기에서 기억해요.</p>
+    <form id="lockForm">
+      <label class="sr-only" for="lockInput">비밀번호</label>
+      <input id="lockInput" type="password" autocomplete="current-password" required>
+      <button class="btn primary" type="submit">들어가기</button>
+    </form>
+    <p class="status warn" id="lockMsg" aria-live="polite"></p>
+  </section>
+
   <section class="composer" id="composer" aria-label="새로 담기">
-    <label class="title" for="raw">먹고 싶은 거, 생각나는 대로 적어주세요</label>
-    <textarea id="raw" rows="3" placeholder="예) 성수 몽탄 우대갈비 다음주 금요일 저녁에 둘이 10만원 https://naver.me/…&#10;네이버지도 ‘공유 → 복사’ 한 걸 그대로 붙여도 돼요"></textarea>
+    <label class="title" for="raw">먹고 싶은 거, 생각나는 대로 적어 주세요</label>
+    <textarea id="raw" rows="3" placeholder="성수 몽탄 우대갈비, 다음주 금요일 저녁에 둘이 10만원 https://naver.me/…"></textarea>
+    <p class="tips" id="tips">네이버지도에서 ‘공유 → 복사’한 글을 그대로 붙여도 되고, 여러 곳을 한 번에 적어도 돼요.</p>
     <div class="reel-row">
       <label class="check" for="hasReel">
         <input type="checkbox" id="hasReel">
@@ -642,19 +502,17 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
       </div>
     </div>
     <div class="composer-bar">
-      <p class="tips" id="tips">지도 링크·메뉴·날짜·예산을 섞어 써도 Claude가 카드로 정리해요. 여러 곳을 한 번에 적어도 돼요.</p>
-      <div class="composer-actions">
-        <div class="attach-thumb" id="attachThumb" hidden>
-          <img id="attachImg" alt="첨부한 메뉴 사진">
-          <button type="button" id="attachClear" aria-label="첨부한 사진 빼기">×</button>
-        </div>
-        <label class="btn ghost" for="photo" id="photoLabel">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
-          메뉴 사진
-        </label>
-        <input class="sr-only" type="file" id="photo" accept="image/*">
-        <button class="btn primary" id="go" type="button">정리하기</button>
+      <div class="attach-thumb" id="attachThumb" hidden>
+        <img id="attachImg" alt="첨부한 메뉴 사진">
+        <button type="button" id="attachClear" aria-label="첨부한 사진 빼기">×</button>
       </div>
+      <input class="sr-only" type="file" id="photo" accept="image/*">
+      <label class="btn secondary" for="photo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+        메뉴 사진
+      </label>
+      <span class="grow"></span>
+      <button class="btn primary" id="go" type="button">정리해서 담기</button>
     </div>
     <p class="status" id="status" aria-live="polite"></p>
   </section>
@@ -663,6 +521,11 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
 <div class="filters" id="filters">
   <div class="wrap">
     <div class="filters-row">
+      <div class="field search">
+        <label class="sr-only" for="fQ">식당명 또는 메뉴 검색</label>
+        <svg class="lens" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+        <input id="fQ" type="search" placeholder="식당명·메뉴 검색" autocomplete="off">
+      </div>
       <div class="field select" id="fRegionWrap">
         <label class="sr-only" for="fRegion">지역</label>
         <select id="fRegion"><option value="">모든 지역</option></select>
@@ -671,16 +534,11 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
         <label class="sr-only" for="fCat">식사 종류</label>
         <select id="fCat"><option value="">모든 종류</option></select>
       </div>
-      <div class="field search">
-        <label class="sr-only" for="fQ">식당명 또는 메뉴 검색</label>
-        <svg class="lens" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
-        <input id="fQ" type="search" placeholder="식당명 · 메뉴 검색" autocomplete="off">
-      </div>
       <div class="field select" id="fSortWrap">
         <label class="sr-only" for="fSort">정렬</label>
         <select id="fSort">
           <option value="recent">최근 담은 순</option>
-          <option value="soon">가고 싶은 날 순</option>
+          <option value="soon">가까운 날짜 순</option>
           <option value="cheap">예산 낮은 순</option>
         </select>
       </div>
@@ -690,10 +548,11 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
 
 <div class="wrap">
   <div class="resultbar" id="resultbar" hidden>
-    <div class="left" id="resultCount"></div>
-    <div class="right" id="resultExtra"></div>
+    <div id="resultCount"></div>
+    <div id="resultExtra"></div>
   </div>
-  <main class="grid" id="grid" aria-label="담아둔 맛집"></main>
+  <h2 class="sr-only" id="listTitle">담아둔 맛집</h2>
+  <main class="list" id="grid" aria-labelledby="listTitle"></main>
   <div class="empty" id="empty">
     <div class="bowl" aria-hidden="true">🍚</div>
     <h2 id="emptyTitle">불러오는 중</h2>
@@ -713,14 +572,14 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
       <label>식당 이름<input id="edName" autocomplete="off"></label>
       <label>식사 종류<select id="edCat"></select></label>
     </div>
+    <label>먹고 싶은 메뉴 (쉼표로 구분)<input id="edMenus" autocomplete="off" placeholder="우대갈비, 된장밥"></label>
     <div class="row">
       <label>네이버지도 링크<input id="edLink" type="url" inputmode="url" placeholder="https://naver.me/…"></label>
       <label>릴스 링크<input id="edReel" type="url" inputmode="url" placeholder="https://www.instagram.com/reel/…"></label>
     </div>
-    <label>먹고 싶은 메뉴 <span>(쉼표로 구분)</span><input id="edMenus" autocomplete="off" placeholder="우대갈비, 된장밥"></label>
     <div class="row">
       <label>시·도<select id="edCity"></select></label>
-      <label>구 · 시<input id="edGu" placeholder="용산구"></label>
+      <label>구·시<input id="edGu" placeholder="용산구"></label>
       <label>동<input id="edDong" placeholder="한강로동"></label>
     </div>
     <div class="row">
@@ -731,11 +590,11 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
       <label>1인 예산 (원)<input id="edBudget" type="number" min="0" step="1000" inputmode="numeric" placeholder="50000"></label>
       <label>예산 메모<input id="edBudgetLabel" placeholder="둘이 10만원"></label>
     </div>
-    <label>메모<textarea id="edMemo" placeholder="웨이팅 김, 예약 필수 …"></textarea></label>
+    <label>메모<textarea id="edMemo" placeholder="웨이팅 김, 예약 필수"></textarea></label>
     <div class="photo-edit">
-      <div class="thumb" id="edThumb"></div>
-      <label class="btn ghost" for="edPhoto">사진 바꾸기</label>
+      <div class="preview" id="edPreview"></div>
       <input class="sr-only" type="file" id="edPhoto" accept="image/*">
+      <label class="btn secondary" for="edPhoto">사진 바꾸기</label>
       <button type="button" class="btn quiet" id="edPhotoClear">사진 빼기</button>
     </div>
     <div class="buttons">
@@ -749,10 +608,10 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
 (() => {
   "use strict";
 
-  // ---------- reference data ----------
+  // ---------- reference data (keep CATS keys in sync with lib/prompt.js) ----------
   const CATS = [
     { key: "소고기", emoji: "🥩", hue: "#E5484D", words: ["한우", "소고기", "우대갈비", "소갈비", "갈비살", "등심", "안심", "차돌", "육회", "꽃등심", "채끝", "살치살", "소곱창", "대창", "양대창", "우설", "규카츠"] },
-    { key: "돼지고기", emoji: "🐷", hue: "#EC6FA0", words: ["삼겹", "목살", "항정", "가브리", "돼지", "족발", "보쌈", "돼지갈비", "제주흑돼지", "흑돼지", "막창", "뒷고기"] },
+    { key: "돼지고기", emoji: "🐷", hue: "#EC6FA0", words: ["삼겹", "목살", "항정", "가브리", "돼지", "족발", "보쌈", "돼지갈비", "흑돼지", "막창", "뒷고기"] },
     { key: "닭·오리", emoji: "🍗", hue: "#F59E0B", words: ["치킨", "통닭", "닭", "삼계탕", "닭갈비", "오리", "닭한마리", "닭볶음탕", "야키토리", "백숙"] },
     { key: "해산물", emoji: "🦐", hue: "#2D9CDB", words: ["횟집", "회", "조개", "대게", "킹크랩", "랍스터", "굴", "장어", "해산물", "새우", "전복", "물회", "아구", "꼼장어", "간장게장", "게장", "해물"] },
     { key: "초밥·일식", emoji: "🍣", hue: "#F0805A", words: ["스시", "초밥", "오마카세", "라멘", "돈카츠", "돈까스", "우동", "이자카야", "텐동", "규동", "사시미", "소바", "텐푸라", "오코노미야키", "덮밥"] },
@@ -877,8 +736,36 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
     if (city) return city;
     return given || "";
   }
+  // URLs end at whitespace or the first non-ASCII character; trailing punctuation is dropped
+  const URL_RE = /https?:\/\/[A-Za-z0-9\-._~:/?#[\]@!$&*+,;=%]+/g;
+  const findUrls = text => (text.match(URL_RE) || []).map(u => u.replace(/[.,!?~;:]+$/, ""));
+  const isReelUrl = u => /instagram\.com\/(reels?|p|tv)\/|youtube\.com\/shorts\/|youtu\.be\/|tiktok\.com\//i.test(u);
+  const reelLabel = u => (/youtu/i.test(u) ? "쇼츠" : /tiktok/i.test(u) ? "틱톡" : "릴스");
+  // 을/를 by the last syllable's final consonant
+  function withObj(word) {
+    const c = word.charCodeAt(word.length - 1);
+    if (c < 0xAC00 || c > 0xD7A3) return `${word}을(를)`;
+    return word + ((c - 0xAC00) % 28 ? "을" : "를");
+  }
 
-  // ---------- storage: claude db when hosted, browser storage otherwise ----------
+  // ---------- server API (Vercel) ----------
+  const PASS_KEY = "eater.pass";
+  const getPass = () => { try { return localStorage.getItem(PASS_KEY) || ""; } catch { return ""; } };
+  const setPass = v => { try { localStorage.setItem(PASS_KEY, v); } catch { /* not remembered */ } };
+  class ApiError extends Error { constructor(status, code) { super(code || String(status)); this.status = status; this.code = code; } }
+  async function api(method, path, body, signal) {
+    const headers = {};
+    if (body !== undefined) headers["Content-Type"] = "application/json";
+    const pass = getPass();
+    if (pass) headers["X-Eater-Pass"] = pass;
+    const res = await fetch(path, { method, headers, body: body === undefined ? undefined : JSON.stringify(body), signal });
+    let data = null;
+    try { data = await res.json(); } catch { /* empty body */ }
+    if (!res.ok) throw new ApiError(res.status, data && data.error);
+    return data || {};
+  }
+
+  // ---------- storage: claude db (artifact) · server (Vercel) · this browser ----------
   const LS_KEY = "eater.places.v1";
   const store = {
     mode: "loading",
@@ -893,11 +780,8 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
     saveLocal() {
       try { localStorage.setItem(LS_KEY, JSON.stringify(this.items)); } catch { /* storage blocked: keep in memory */ }
     },
-    useLocal() {
-      this.mode = "local";
-      this.items = this.loadLocal();
-      this.emit();
-    },
+    useLocal() { this.mode = "local"; this.items = this.loadLocal(); this.emit(); },
+    useServer(items) { this.mode = "server"; this.items = items; this.emit(); },
     useDb(db) {
       this.mode = "db";
       this.db = db;
@@ -906,8 +790,18 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
         () => showToast("저장소 연결이 끊겼어요. 새로고침하면 다시 이어져요."),
       );
     },
+    async refresh() {
+      if (this.mode !== "server") return;
+      try { this.items = (await api("GET", "/api/places")).places || []; this.emit(); } catch { /* keep what is on screen */ }
+    },
     async add(data) {
       if (this.mode === "db") return (await this.db.collection("places").add(data)).id;
+      if (this.mode === "server") {
+        const { place } = await api("POST", "/api/places", data);
+        this.items = [...this.items, place];
+        this.emit();
+        return place.id;
+      }
       const id = "l" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
       this.items = [...this.items, { id, ...data }];
       this.saveLocal(); this.emit();
@@ -915,23 +809,36 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
     },
     async update(id, patch) {
       if (this.mode === "db") return this.db.doc("places/" + id).update(patch);
+      if (this.mode === "server") {
+        const { place } = await api("PATCH", "/api/places?id=" + encodeURIComponent(id), patch);
+        this.items = this.items.map(p => (p.id === id ? place : p));
+        return this.emit();
+      }
       this.items = this.items.map(p => (p.id === id ? { ...p, ...patch } : p));
       this.saveLocal(); this.emit();
     },
     async remove(id) {
       if (this.mode === "db") return this.db.doc("places/" + id).delete();
+      if (this.mode === "server") await api("DELETE", "/api/places?id=" + encodeURIComponent(id));
       this.items = this.items.filter(p => p.id !== id);
-      this.saveLocal(); this.emit();
+      if (this.mode === "local") this.saveLocal();
+      this.emit();
     },
   };
 
-  let sample = null;
+  let sample = null;          // artifact: Claude via the viewer
+  let parseOnServer = false;  // Vercel: Claude via /api/parse
   let canSendImages = false;
   let assets = null;
   let readOnly = false;
 
   async function boot() {
-    const use = window.claude && typeof window.claude.use === "function" ? n => window.claude.use(n).catch(() => null) : async () => null;
+    if (window.claude && typeof window.claude.use === "function") return bootArtifact();
+    return bootServer();
+  }
+
+  async function bootArtifact() {
+    const use = n => window.claude.use(n).catch(() => null);
     const [db, smp, ast, usr] = await Promise.all([use("db"), use("sample"), use("assets"), use("user")]);
     sample = smp;
     assets = ast;
@@ -942,11 +849,55 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
       try { readOnly = (await usr.can("data.write")) === false; } catch { readOnly = false; }
     }
     $("composer").hidden = readOnly;
-    if (!sample) $("tips").textContent = "지도 링크·메뉴·날짜·예산을 섞어 써도 카드로 정리해요. 이 화면에선 간단 정리 모드로 동작해요.";
+    if (!sample) $("tips").textContent = "Claude를 쓸 수 없는 화면이라 간단 정리로 담아요. 담은 뒤 카드에서 고칠 수 있어요.";
     if (db) store.useDb(db); else store.useLocal();
   }
 
-  // ---------- Claude prompt ----------
+  async function bootServer() {
+    if (!/^https?:$/.test(location.protocol)) { store.useLocal(); return; }
+    try {
+      const { places } = await api("GET", "/api/places");
+      $("lock").hidden = true;
+      $("composer").hidden = false;
+      parseOnServer = true;
+      canSendImages = true;
+      store.useServer(places || []);
+      document.addEventListener("visibilitychange", () => { if (!document.hidden) store.refresh(); });
+    } catch (e) {
+      if (e instanceof ApiError && e.status === 401) return showLock();
+      if (e instanceof ApiError && e.status === 503) {
+        parseOnServer = true;
+        canSendImages = true;
+        showNotice("서버 저장소가 아직 연결되지 않아서 이 기기에만 저장돼요. Vercel에서 Upstash Redis를 연결하면 폰과 PC가 같은 목록을 봐요.");
+      }
+      store.useLocal();
+    }
+  }
+
+  function showNotice(text) { $("notice").textContent = text; $("notice").hidden = false; }
+
+  function showLock(message) {
+    $("composer").hidden = true;
+    $("lock").hidden = false;
+    $("lockMsg").textContent = message || "";
+    store.mode = "locked";
+    render();
+    $("lockInput").focus();
+  }
+  $("lockForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    setPass($("lockInput").value);
+    $("lockMsg").textContent = "";
+    try {
+      await api("GET", "/api/places");
+      $("lockInput").value = "";
+      bootServer();
+    } catch (err) {
+      $("lockMsg").textContent = err instanceof ApiError && err.status === 401 ? "비밀번호가 맞지 않아요. 다시 입력해 주세요." : "서버에 연결하지 못했어요. 잠시 뒤 다시 시도해 주세요.";
+    }
+  });
+
+  // ---------- Claude prompt (artifact mode; the server builds its own in lib/prompt.js) ----------
   function buildPrompt(raw, withImage) {
     const today = startOfDay(new Date());
     const wb = weekBounds(today);
@@ -968,7 +919,7 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
       "[규칙]",
       "- name: 식당 이름. 네이버 지도 공유 글이면 '[네이버 지도]' 다음 줄이 식당 이름이야. 식당이 정해지지 않았으면 \"\".",
       "- link: 메모에 있는 지도 URL(naver.me, map.naver.com, place.naver.com 등)을 글자 그대로. 없으면 \"\". 절대 지어내지 마.",
-      "- reel: 그 식당을 보고 저장한 인스타그램 릴스·게시물(instagram.com/reel, /p), 유튜브 쇼츠, 틱톡 URL을 글자 그대로. 없으면 \"\". 절대 지어내지 마.",
+      "- reel: 그 식당을 보고 저장한 인스타그램 릴스·게시물, 유튜브 쇼츠, 틱톡 URL을 글자 그대로. 없으면 \"\". 절대 지어내지 마.",
       "- 링크가 여러 개고 식당도 여러 곳이면, 링크가 적힌 위치를 보고 어느 식당 것인지 맞춰서 넣어.",
       "- address: 메모에 주소가 있으면 그대로, 없으면 \"\".",
       "- city: 시·도 짧은 이름(서울, 경기, 인천, 부산 …). gu: 서울은 '용산구'처럼 구, 경기 등은 '성남시 분당구'처럼 시·구. dong: '한강로동'처럼 동.",
@@ -991,11 +942,6 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
     ].filter(l => l !== null).join("\n");
   }
 
-  // URLs end at whitespace or the first non-ASCII character; trailing punctuation is dropped
-  const findUrls = text => (text.match(/https?:\/\/[A-Za-z0-9\-._~:/?#[\]@!$&*+,;=%]+/g) || []).map(u => u.replace(/[.,!?~;:]+$/, ""));
-  const isReelUrl = u => /instagram\.com\/(reels?|p|tv)\/|youtube\.com\/shorts\/|youtu\.be\/|tiktok\.com\//i.test(u);
-  const reelLabel = u => (/youtu/i.test(u) ? "쇼츠" : /tiktok/i.test(u) ? "틱톡" : "릴스");
-
   // ---------- offline parser (used when Claude isn't reachable) ----------
   function localParse(raw) {
     const text = raw.replace(/\r/g, "");
@@ -1008,7 +954,7 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
       name = share[1].trim();
       if (!/^https?:/.test(share[2])) address = share[2].trim();
     }
-    let rest = text.replace(/https?:\/\/[A-Za-z0-9\-._~:/?#[\]@!$&*+,;=%]+/g, " ").replace(/\[\s*네이버\s*지도\s*\]/g, " ");
+    let rest = text.replace(URL_RE, " ").replace(/\[\s*네이버\s*지도\s*\]/g, " ");
     if (share) rest = rest.replace(share[1], " ").replace(address || "\u0000", " ");
 
     // region
@@ -1034,7 +980,7 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
     const won = rest.match(/(?:(1인|인당|한\s*명|둘이|두\s*명|2인|셋이|세\s*명|3인|넷이|네\s*명|4인|(\d+)\s*(?:명|인))\s*(?:이서|서|에|당)?\s*)?(?:예산\s*)?(\d+(?:\.\d+)?)\s*(만\s*원?|천\s*원?|원)/);
     if (won) {
       const unit = won[4].replace(/\s/g, "");
-      let amount = parseFloat(won[3]) * (unit.startsWith("만") ? 10000 : unit.startsWith("천") ? 1000 : 1);
+      const amount = parseFloat(won[3]) * (unit.startsWith("만") ? 10000 : unit.startsWith("천") ? 1000 : 1);
       const who = (won[1] || "").replace(/\s/g, "");
       let people = 1;
       if (/둘|두명|2인/.test(who)) people = 2;
@@ -1100,7 +1046,7 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
     for (const w of menus) rest = rest.replace(w, " ");
 
     if (!name) {
-      const stop = /^(먹고|싶다|싶어|싶음|가고|가자|가보자|가볼|가기|에서|여기|거기|저기|꼭|진짜|너무|완전|맛집|같이|친구|랑|이랑|하고|도|좀|한번|먹으러|먹기|가서|예약|웨이팅|필수|후기|추천|요즘|핫한|유명한|ㅋ+|ㅎ+|!+|\.+|,+)$/;
+      const stop = /^(먹고|싶다|싶어|싶음|가고|가자|가보자|가볼|가기|에서|여기|거기|저기|꼭|진짜|너무|완전|맛집|같이|친구|랑|이랑|하고|도|좀|한번|먹으러|먹기|가서|예약|웨이팅|필수|후기|추천|요즘|핫한|유명한|릴스|ㅋ+|ㅎ+|!+|\.+|,+)$/;
       const tokens = rest.split(/[\s,.!?~·\n]+/).map(t => t.replace(/(에서|에|으로|은|는|을|를|이랑|하고|랑)$/, "")).filter(t => t && t.length >= 2 && !stop.test(t) && !/^\d/.test(t));
       if (tokens.length) name = tokens[0];
     }
@@ -1130,8 +1076,9 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
     let category = str(p.category);
     if (!CAT[category]) category = guessCategory(menus, name);
     let budget = Number(p.budget);
-    budget = Number.isFinite(budget) && budget > 0 ? Math.round(budget) : null;
+    budget = p.budget != null && Number.isFinite(budget) && budget > 0 ? Math.round(budget) : null;
     const wantDate = /^\d{4}-\d{2}-\d{2}$/.test(str(p.wantDate)) ? str(p.wantDate) : null;
+    const photoUrl = safeUrl(str(p.photoUrl));
     return {
       name, link, reel,
       address: str(p.address).slice(0, 120),
@@ -1144,6 +1091,7 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
       raw: raw.slice(0, 1000),
       createdAt: new Date().toISOString(),
       example: false,
+      ...(photoUrl.startsWith("https://") ? { photoUrl } : {}),
     };
   }
 
@@ -1168,20 +1116,33 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
   }
   const toDataUrl = blob => new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(blob); });
   async function storePhoto(file) {
+    const none = { photoId: null, photoKey: null, photoData: null };
+    if (store.mode === "server") {
+      for (const [side, q] of [[1000, 0.8], [720, 0.72]]) {
+        const data = await toDataUrl(await compress(file, side, q));
+        if (data.length > 880000) continue;
+        const { key } = await api("POST", "/api/photo", { data });
+        return { ...none, photoKey: key };
+      }
+      throw new ApiError(413, "bad_image");
+    }
     if (assets) {
       try {
-        const blob = await compress(file, 1200, 0.85);
-        const r = await assets.upload(blob, { type: "image/jpeg" });
-        return { photoId: r.id, photoData: null };
+        const r = await assets.upload(await compress(file, 1000, 0.82), { type: "image/jpeg" });
+        return { ...none, photoId: r.id };
       } catch { /* fall back to an inline thumbnail */ }
     }
     for (const [side, q] of [[560, 0.78], [420, 0.7], [300, 0.65]]) {
       const url = await toDataUrl(await compress(file, side, q));
-      if (url.length < 180000) return { photoId: null, photoData: url };
+      if (url.length < 180000) return { ...none, photoData: url };
     }
-    return { photoId: null, photoData: null };
+    return none;
   }
-  const photoSrc = p => (p.photoId ? "/_blob/" + p.photoId : p.photoData || "");
+  function photoSrc(p) {
+    if (p.photoId) return "/_blob/" + p.photoId;
+    if (p.photoKey) return "/api/photo?id=" + encodeURIComponent(p.photoKey);
+    return p.photoData || p.photoUrl || "";
+  }
 
   // ---------- composer ----------
   let attached = null;
@@ -1203,52 +1164,76 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
   $("go").addEventListener("click", () => (busy ? busy.abort() : organize()));
 
   const FAIL_COPY = {
-    not_granted: "Claude 사용을 허용하지 않아서 간단 정리로 담았어요.",
+    not_granted: "Claude 사용을 허용하지 않아서 간단 정리로 담았어요. 카드에서 고칠 수 있어요.",
     sampling_disabled: "이 계정에선 Claude를 쓸 수 없어서 간단 정리로 담았어요.",
-    rate_limited: "Claude 사용량이 잠깐 찼어요. 간단 정리로 담았으니 카드에서 고쳐주세요.",
+    rate_limited: "Claude 사용량이 잠깐 찼어요. 간단 정리로 담았으니 카드에서 고쳐 주세요.",
     session_expired: "로그인이 만료돼서 간단 정리로 담았어요. 다시 로그인해 주세요.",
     image_rejected: "사진을 읽지 못해서 글만 보고 정리했어요.",
+    no_key: "",
+    bad_key: "서버의 Claude API 키가 맞지 않아서 간단 정리로 담았어요.",
+    refused: "Claude가 이 메모를 정리하지 않아서 간단 정리로 담았어요.",
   };
+  const FALLBACK_COPY = "Claude 정리가 실패해서 간단 정리로 담았어요. 카드에서 고쳐 주세요.";
 
   function setStatus(content, warn) {
     const el = $("status");
     el.replaceChildren(...(Array.isArray(content) ? content : [content || ""]));
     el.classList.toggle("warn", !!warn);
   }
+  const working = label => [h("span", { class: "dots", "aria-hidden": "true" }, h("i"), h("i"), h("i")), label];
+
+  // Ask Claude for the place list. Returns {list, note}; list is null when we should parse locally.
+  async function askClaude(raw, photo, signal) {
+    if (sample) {
+      try {
+        let photoBlob = null;
+        if (photo && canSendImages) photoBlob = await compress(photo, 1000, 0.82).catch(() => null);
+        const opts = { modelTier: "quick", signal };
+        if (photoBlob) opts.images = [photoBlob];
+        const out = await sample.json(buildPrompt(raw || "(글 없음, 사진만 보고 정리)", !!photoBlob), opts);
+        const arr = Array.isArray(out) ? out : out && Array.isArray(out.places) ? out.places : [];
+        return { list: arr.length ? arr : null, note: "" };
+      } catch (e) {
+        if (e && e.code === "cancelled") throw e;
+        if (e && ["not_granted", "sampling_disabled", "not_declared", "capability_disabled", "capability_removed"].includes(e.code)) sample = null;
+        return { list: null, note: FAIL_COPY[e && e.code] ?? FALLBACK_COPY };
+      }
+    }
+    if (parseOnServer) {
+      try {
+        let image;
+        if (photo) image = await toDataUrl(await compress(photo, 1000, 0.8)).catch(() => undefined);
+        const out = await api("POST", "/api/parse", { text: raw, today: ymd(new Date()), image }, signal);
+        const arr = Array.isArray(out.places) ? out.places : [];
+        return { list: arr.length ? arr : null, note: "" };
+      } catch (e) {
+        if (e && e.name === "AbortError") throw { code: "cancelled" };
+        if (e instanceof ApiError && e.status === 401) { showLock("비밀번호가 바뀌었어요. 다시 입력해 주세요."); throw e; }
+        if (e instanceof ApiError && e.code === "no_key") parseOnServer = false;
+        return { list: null, note: FAIL_COPY[e && e.code] ?? FALLBACK_COPY };
+      }
+    }
+    return { list: null, note: "" };
+  }
 
   async function organize() {
     const raw = $("raw").value.trim();
-    if (!raw && !attached) { setStatus("먼저 먹고 싶은 걸 적어주세요.", true); $("raw").focus(); return; }
+    if (!raw && !attached) { setStatus("먼저 먹고 싶은 걸 적어 주세요.", true); $("raw").focus(); return; }
     const reelText = $("hasReel").checked ? $("reelInput").value.trim() : "";
     const reelIn = reelText ? safeUrl(/^https?:\/\//i.test(reelText) ? reelText : "https://" + reelText) : "";
-    if (reelText && !reelIn) { setStatus("릴스 링크가 올바르지 않아요. https:// 로 시작하는 주소를 붙여주세요.", true); $("reelInput").focus(); return; }
+    if (reelText && !reelIn) { setStatus("릴스 링크를 확인해 주세요. https:// 로 시작하는 주소를 붙여 주세요.", true); $("reelInput").focus(); return; }
+
     const ctl = new AbortController();
     busy = ctl;
-    $("go").textContent = "그만";
+    $("go").textContent = "멈추기";
     $("raw").readOnly = true;
-    setStatus([h("span", { class: "dots", "aria-hidden": "true" }, h("i"), h("i"), h("i")), sample ? "Claude가 정리하는 중…" : "정리하는 중…"]);
+    setStatus(working(sample || parseOnServer ? "Claude가 정리하는 중…" : "정리하는 중…"));
 
     const rawLinks = findUrls(raw);
     const photo = attached;
-    let list = null, note = "";
     try {
-      if (sample) {
-        try {
-          let photoBlob = null;
-          if (photo && canSendImages) photoBlob = await compress(photo, 1200, 0.85).catch(() => null);
-          const opts = { modelTier: "quick", signal: ctl.signal };
-          if (photoBlob) opts.images = [photoBlob];
-          const out = await sample.json(buildPrompt(raw || "(글 없음, 사진만 보고 정리)", !!photoBlob), opts);
-          const arr = Array.isArray(out) ? out : out && Array.isArray(out.places) ? out.places : [];
-          if (arr.length) list = arr;
-        } catch (e) {
-          if (e && e.code === "cancelled") throw e;
-          if (e && ["not_granted", "sampling_disabled", "not_declared", "capability_disabled", "capability_removed"].includes(e.code)) sample = null;
-          note = FAIL_COPY[e && e.code] || "Claude 정리가 잘 안 돼서 간단 정리로 담았어요. 카드에서 고쳐주세요.";
-        }
-      }
-      if (!list) list = localParse(raw);
-      let items = list.map(p => normalize(p, raw, rawLinks));
+      const { list, note } = await askClaude(raw, photo, ctl.signal);
+      const items = (list || localParse(raw)).map(p => normalize(p, raw, rawLinks));
       if (items.length === 1) {
         // one place: any link Claude left out still belongs to it
         const mapLinks = rawLinks.filter(u => !isReelUrl(u)), reelLinks = rawLinks.filter(isReelUrl);
@@ -1257,9 +1242,11 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
       }
       if (reelIn && items.length) items[0].reel = reelIn;
 
+      let photoNote = "";
       if (photo && items.length) {
-        setStatus([h("span", { class: "dots", "aria-hidden": "true" }, h("i"), h("i"), h("i")), "사진 올리는 중…"]);
-        Object.assign(items[0], await storePhoto(photo));
+        setStatus(working("사진 올리는 중…"));
+        try { Object.assign(items[0], await storePhoto(photo)); }
+        catch { photoNote = "사진은 올리지 못했어요. 카드의 연필 버튼으로 다시 넣을 수 있어요."; }
       }
       const ids = [];
       for (const it of items) ids.push(await store.add(it));
@@ -1271,8 +1258,10 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
       $("reelField").hidden = true;
       attached = null;
       $("attachThumb").hidden = true;
-      setStatus(note, !!note);
-      showToast(`${items.length === 1 ? (items[0].name || items[0].menus[0] || "1곳") + " 담았어요" : items.length + "곳을 담았어요"}`, "되돌리기", async () => {
+      const msg = [note, photoNote].filter(Boolean).join(" ");
+      setStatus(msg, !!msg);
+      const first = items[0].name || items[0].menus[0];
+      showToast(items.length === 1 ? `${first ? withObj(first) : "1곳을"} 담았어요` : `${items.length}곳을 담았어요`, "되돌리기", async () => {
         for (const id of ids) {
           const p = store.items.find(x => x.id === id);
           await store.remove(id).catch(() => {});
@@ -1281,13 +1270,14 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
         showToast("되돌렸어요");
       });
     } catch (e) {
-      if (e && e.code === "cancelled") setStatus("정리를 멈췄어요. 메모는 그대로 있어요.");
-      else if (e && e.code === "invalid_argument") { setStatus("이 페이지에 담을 권한이 없어요.", true); }
-      else if (e && e.code === "quota_exceeded") setStatus("저장 공간이 꽉 찼어요. 다녀온 곳을 몇 개 지워주세요.", true);
-      else setStatus("담지 못했어요. 잠시 뒤 다시 눌러주세요.", true);
+      if (e && e.code === "cancelled") setStatus("정리를 멈췄어요. 적은 글은 그대로 있어요.");
+      else if (e instanceof ApiError && e.status === 401) setStatus("");
+      else if (e && e.code === "invalid_argument") setStatus("이 페이지에 담을 권한이 없어요.", true);
+      else if (e && e.code === "quota_exceeded") setStatus("저장 공간이 꽉 찼어요. 다녀온 곳을 몇 개 지워 주세요.", true);
+      else setStatus("담지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.", true);
     } finally {
       busy = null;
-      $("go").textContent = "정리하기";
+      $("go").textContent = "정리해서 담기";
       $("raw").readOnly = false;
     }
   }
@@ -1316,6 +1306,12 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
     try { localStorage.setItem("eater.sort", JSON.stringify(filt.sort)); } catch { /* ignore */ }
     render();
   });
+  // hairline under the filter bar once it sticks
+  const sentinel = h("div", { "aria-hidden": "true" });
+  $("filters").before(sentinel);
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(([e]) => $("filters").classList.toggle("stuck", !e.isIntersecting)).observe(sentinel);
+  }
 
   function rebuildFilterOptions(items) {
     const areas = new Map();
@@ -1345,13 +1341,13 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
     csel.value = ckeep;
     if (csel.value !== ckeep) { csel.value = ""; filt.cat = ""; }
 
-    $("fRegionWrap").classList.toggle("has-value", !!filt.region);
-    $("fCatWrap").classList.toggle("has-value", !!filt.cat);
+    $("fRegionWrap").classList.toggle("on", !!filt.region);
+    $("fCatWrap").classList.toggle("on", !!filt.cat);
   }
 
   function applyFilters(items) {
     const q = filt.q.toLowerCase();
-    let out = items.filter(p => {
+    const out = items.filter(p => {
       if (filt.region.startsWith("a:") && p.area !== filt.region.slice(2)) return false;
       if (filt.region.startsWith("g:") && p.gu !== filt.region.slice(2)) return false;
       if (filt.cat && p.category !== filt.cat) return false;
@@ -1374,9 +1370,12 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
   // ---------- cards ----------
   let fresh = new Set();
   function mapHref(p) {
-    if (p.link) return { href: p.link, label: /naver\./.test(p.link) ? "네이버지도" : "지도" };
+    if (p.link) {
+      const label = /naver\./.test(p.link) ? "네이버지도" : "지도";
+      return { href: p.link, label, says: `${label}에서 열기` };
+    }
     const q = [p.name || (p.menus || [])[0], p.dong || p.gu].filter(Boolean).join(" ");
-    return q ? { href: "https://map.naver.com/p/search/" + encodeURIComponent(q), label: "지도에서 찾기" } : null;
+    return q ? { href: "https://map.naver.com/p/search/" + encodeURIComponent(q), label: "지도에서 찾기", says: "네이버지도에서 찾기" } : null;
   }
 
   function card(p) {
@@ -1384,46 +1383,20 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
     const go = mapHref(p);
     const title = p.name || (p.menus || [])[0] || "이름 없는 맛집";
     const el = h("article", { class: "card" + (go ? " linked" : "") + (fresh.has(p.id) ? " pop" : ""), style: `--hue:${cat.hue}` });
+    if (go) el.append(h("a", { class: "stretch", href: go.href, target: "_blank", rel: "noopener noreferrer", "aria-label": `${title}, ${go.says}` }));
 
-    if (go) el.append(h("a", { class: "stretch", href: go.href, target: "_blank", rel: "noopener noreferrer", "aria-label": `${title} ${go.label}에서 열기` }));
-
-    const photo = h("div", { class: "photo" });
-    const src = photoSrc(p);
-    const emoji = h("span", { class: "emoji", "aria-hidden": "true", text: cat.emoji });
-    photo.append(emoji);
-    if (src) {
-      const img = h("img", { src, alt: `${title} 사진`, loading: "lazy" });
-      img.addEventListener("error", () => img.remove());
-      photo.append(img);
-    }
-    if (p.example) photo.append(h("span", { class: "example-tag", text: "예시" }));
-    if (p.wantDate) {
-      const n = daysUntil(p.wantDate);
-      const label = n === 0 ? "오늘!" : n > 0 ? `D-${n}` : "지남";
-      photo.append(h("span", { class: "sticker" + (n === 0 ? " today" : n < 0 ? " past" : ""), text: label, title: fmtDate(p.wantDate) }));
-    }
-    photo.append(h("span", { class: "cat-chip" }, h("span", { "aria-hidden": "true", text: cat.emoji }), cat.key));
-    if (p.reel) {
-      photo.append(h("a", { class: "reel", href: p.reel, target: "_blank", rel: "noopener noreferrer", "aria-label": `${title} ${reelLabel(p.reel)} 보기` },
-        svg(ICON.play), reelLabel(p.reel)));
-    }
-    el.append(photo);
-
-    const body = h("div", { class: "body" });
-    body.append(h("div", { class: "name-row" },
-      h("h3", { class: "name" }, title, !p.name && (p.menus || []).length ? h("span", { class: "undecided", text: "식당 미정" }) : null)));
-
+    // info (left)
+    const info = h("div", { class: "info" });
+    info.append(h("div", { class: "tags" },
+      h("span", { class: "cat" }, h("span", { "aria-hidden": "true", text: cat.emoji }), cat.key),
+      p.example ? h("span", { class: "example", text: "예시" }) : null));
+    info.append(h("h3", { class: "name" }, title, !p.name && (p.menus || []).length ? h("span", { class: "undecided", text: "식당 미정" }) : null));
     const where = [p.gu, p.dong].filter(Boolean).join(" ");
     if (where || p.area) {
-      body.append(h("div", { class: "place" },
-        svg(ICON.pin),
-        where ? h("span", { text: where }) : null,
-        p.area ? h("span", { class: "area-pill", text: p.area }) : null));
+      info.append(h("p", { class: "where" }, svg(ICON.pin), where ? h("span", { text: where }) : null, p.area ? h("span", { class: "area", text: p.area }) : null));
     }
-
     const menuList = (p.menus || []).filter(m => m !== title);
-    if (menuList.length) body.append(h("div", { class: "menus", "aria-label": "먹고 싶은 메뉴" }, menuList.map(m => h("span", { text: m }))));
-
+    if (menuList.length) info.append(h("p", { class: "menus", text: menuList.join(", ") }));
     const facts = h("dl", { class: "facts" });
     facts.append(h("dt", { text: "언제" }));
     if (p.wantDate) facts.append(h("dd", null, fmtDate(p.wantDate), p.wantWhen ? h("small", { text: p.wantWhen }) : null));
@@ -1431,21 +1404,37 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
     facts.append(h("dt", { text: "예산" }));
     const money = p.budget ? `1인 ${fmtWon(p.budget)}` : "";
     facts.append(h("dd", null, money || p.budgetLabel || "미정", money && p.budgetLabel && p.budgetLabel !== money ? h("small", { text: p.budgetLabel }) : null));
-    facts.append(h("dt", { text: "담은 날" }), h("dd", { class: "added", text: fmtShort(p.createdAt) }));
-    body.append(facts);
-    if (p.memo) body.append(h("p", { class: "memo", text: p.memo }));
-    el.append(body);
+    info.append(facts);
+    if (p.memo) info.append(h("p", { class: "memo", text: p.memo }));
+    el.append(info);
 
-    const foot = h("div", { class: "foot" },
-      go ? h("span", { class: "go" }, h("i", { "aria-hidden": "true" }), `${go.label}에서 보기 ↗`) : h("span", { text: "지도 정보 없음" }));
+    // photo (right)
+    const thumb = h("div", { class: "thumb" }, h("span", { class: "emoji", "aria-hidden": "true", text: cat.emoji }));
+    const src = photoSrc(p);
+    if (src) {
+      const img = h("img", { src, alt: `${title} 사진`, loading: "lazy", decoding: "async", referrerpolicy: "no-referrer" });
+      img.addEventListener("error", () => img.remove());
+      thumb.append(img);
+    }
+    if (p.wantDate) {
+      const n = daysUntil(p.wantDate);
+      thumb.append(h("span", { class: "sticker" + (n === 0 ? " today" : n < 0 ? " past" : ""), text: n === 0 ? "오늘" : n > 0 ? `D-${n}` : "지남", title: fmtDate(p.wantDate) }));
+    }
+    el.append(thumb);
+
+    // footer
+    const right = h("div", { class: "right" });
+    if (p.reel) right.append(h("a", { class: "reel", href: p.reel, target: "_blank", rel: "noopener noreferrer", "aria-label": `${title} ${reelLabel(p.reel)} 보기` }, svg(ICON.play), reelLabel(p.reel)));
+    if (go) right.append(h("span", { class: "go", "aria-hidden": "true" }, h("i"), go.label));
     if (!readOnly) {
       const del = h("button", { class: "icon-btn", type: "button", "aria-label": `${title} 지우기` }, svg(ICON.trash));
       let armed = 0;
       del.addEventListener("click", async () => {
         if (!armed) {
           del.classList.add("confirm");
-          del.replaceChildren("지울까요?");
-          armed = setTimeout(() => { armed = 0; del.classList.remove("confirm"); del.replaceChildren(svg(ICON.trash)); }, 3000);
+          del.replaceChildren("지우기");
+          del.setAttribute("aria-label", `한 번 더 누르면 ${withObj(title)} 지워요`);
+          armed = setTimeout(() => { armed = 0; del.classList.remove("confirm"); del.replaceChildren(svg(ICON.trash)); del.setAttribute("aria-label", `${title} 지우기`); }, 3000);
           return;
         }
         clearTimeout(armed);
@@ -1453,56 +1442,48 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
         try {
           await store.remove(p.id);
           if (p.photoId && assets) assets.delete(p.photoId).catch(() => {});
-          showToast(`${title} 지웠어요`);
-        } catch { del.disabled = false; showToast("지우지 못했어요. 다시 눌러주세요."); }
+          showToast(`${withObj(title)} 지웠어요`);
+        } catch { del.disabled = false; showToast("지우지 못했어요. 다시 눌러 주세요."); }
       });
-      foot.append(h("div", { class: "actions" },
-        h("button", { class: "icon-btn", type: "button", "aria-label": `${title} 고치기`, onclick: () => openEditor(p) }, svg(ICON.edit)),
-        del));
+      right.append(h("button", { class: "icon-btn", type: "button", "aria-label": `${title} 고치기`, onclick: () => openEditor(p) }, svg(ICON.edit)), del);
     }
-    el.append(foot);
+    el.append(h("div", { class: "foot" }, h("span", { class: "added", text: `${fmtShort(p.createdAt)} 담음` }), right));
     return el;
   }
 
   function render() {
-    const items = store.items;
+    const items = store.mode === "locked" ? [] : store.items;
     $("tally").replaceChildren(h("b", { text: String(items.filter(p => !p.example).length) }), "곳 담음");
+    document.body.classList.toggle("has-items", items.length > 0);
     rebuildFilterOptions(items);
     const shown = applyFilters(items);
     $("grid").replaceChildren(...shown.map(card));
     fresh = new Set();
+    $("filters").hidden = store.mode === "locked";
 
     const empty = $("empty");
-    if (store.mode === "loading") {
-      empty.hidden = false;
-      $("emptyTitle").textContent = "불러오는 중";
-      $("emptyText").textContent = "담아둔 맛집을 가져오고 있어요.";
-    } else if (!items.length) {
-      empty.hidden = false;
-      $("emptyTitle").textContent = "아직 담은 곳이 없어요";
-      $("emptyText").textContent = "위 칸에 먹고 싶은 걸 아무렇게나 적고 ‘정리하기’를 눌러보세요. 네이버지도 링크를 붙이면 카드에서 바로 열려요.";
-    } else if (!shown.length) {
-      empty.hidden = false;
-      $("emptyTitle").textContent = "조건에 맞는 곳이 없어요";
-      $("emptyText").textContent = "지역이나 종류를 바꾸거나 검색어를 지워보세요.";
-    } else empty.hidden = true;
+    const say = (title, text) => { empty.hidden = false; $("emptyTitle").textContent = title; $("emptyText").textContent = text; };
+    if (store.mode === "loading") say("불러오는 중", "담아둔 맛집을 가져오고 있어요.");
+    else if (store.mode === "locked") empty.hidden = true;
+    else if (!items.length) say("아직 담은 곳이 없어요", "위 칸에 먹고 싶은 걸 적고 ‘정리해서 담기’를 눌러 보세요. 네이버지도 링크를 넣으면 카드를 눌러 바로 열 수 있어요.");
+    else if (!shown.length) say("조건에 맞는 곳이 없어요", "지역이나 종류를 바꾸거나 검색어를 지워 보세요.");
+    else empty.hidden = true;
 
-    const bar = $("resultbar");
-    bar.hidden = !items.length;
+    $("resultbar").hidden = !items.length;
     const filtered = filt.region || filt.cat || filt.q;
     $("resultCount").replaceChildren(
       filtered ? `${items.length}곳 중 ${shown.length}곳` : `전체 ${items.length}곳`,
-      filtered ? h("button", { class: "linkbtn", type: "button", text: "필터 풀기", onclick: clearFilters }) : "");
+      filtered ? h("button", { class: "linkbtn", type: "button", text: "필터 지우기", onclick: clearFilters }) : "");
     const ex = items.filter(p => p.example);
     const extra = $("resultExtra");
     extra.replaceChildren();
     if (ex.length && !readOnly) {
-      const btn = h("button", { class: "linkbtn danger", type: "button", text: "예시 카드 지우기" });
+      const btn = h("button", { class: "linkbtn danger", type: "button", text: `예시 ${ex.length}개 지우기` });
       let armed = 0;
       btn.addEventListener("click", async () => {
         if (!armed) {
-          btn.textContent = `예시 ${ex.length}개를 지울까요? 한 번 더 누르기`;
-          armed = setTimeout(() => { armed = 0; btn.textContent = "예시 카드 지우기"; }, 3500);
+          btn.textContent = "한 번 더 누르면 지워요";
+          armed = setTimeout(() => { armed = 0; btn.textContent = `예시 ${ex.length}개 지우기`; }, 3500);
           return;
         }
         clearTimeout(armed);
@@ -1510,7 +1491,7 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
         for (const p of ex) await store.remove(p.id).catch(() => {});
         showToast("예시 카드를 지웠어요");
       });
-      extra.append(h("span", { text: `예시 ${ex.length}개 포함` }), btn);
+      extra.append(btn);
     }
   }
   function clearFilters() {
@@ -1526,9 +1507,8 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
   $("edCat").append(...CATS.map(c => h("option", { value: c.key, text: `${c.emoji} ${c.key}` })));
   $("edCity").append(h("option", { value: "", text: "선택 안 함" }), ...CITIES.map(c => h("option", { value: c, text: c })));
 
-  function edThumb(src, catKey) {
-    const t = $("edThumb");
-    t.replaceChildren(src ? h("img", { src, alt: "" }) : (CAT[catKey] || CAT["기타"]).emoji);
+  function edPreview(src, catKey) {
+    $("edPreview").replaceChildren(src ? h("img", { src, alt: "", referrerpolicy: "no-referrer" }) : (CAT[catKey] || CAT["기타"]).emoji);
   }
   function openEditor(p) {
     editing = p;
@@ -1546,19 +1526,18 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
     $("edBudget").value = p.budget || "";
     $("edBudgetLabel").value = p.budgetLabel || "";
     $("edMemo").value = p.memo || "";
-    edThumb(photoSrc(p), p.category);
+    edPreview(photoSrc(p), p.category);
     if (typeof ed.showModal === "function") ed.showModal(); else ed.setAttribute("open", "");
-    $("edName").focus();
   }
   $("edPhoto").addEventListener("change", e => {
     const f = e.target.files && e.target.files[0];
     e.target.value = "";
     if (!f) return;
     edPhoto = f;
-    edThumb(URL.createObjectURL(f), $("edCat").value);
+    edPreview(URL.createObjectURL(f), $("edCat").value);
   });
-  $("edPhotoClear").addEventListener("click", () => { edPhoto = null; edThumb("", $("edCat").value); });
-  $("edCat").addEventListener("change", () => { if (edPhoto === null || (edPhoto === undefined && !photoSrc(editing))) edThumb("", $("edCat").value); });
+  $("edPhotoClear").addEventListener("click", () => { edPhoto = null; edPreview("", $("edCat").value); });
+  $("edCat").addEventListener("change", () => { if (edPhoto === null || (edPhoto === undefined && !photoSrc(editing))) edPreview("", $("edCat").value); });
   $("edCancel").addEventListener("click", () => ed.close());
   $("edForm").addEventListener("submit", async e => {
     e.preventDefault();
@@ -1570,7 +1549,7 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
     try {
       const city = $("edCity").value;
       const gu = $("edGu").value.trim();
-      let budget = Number($("edBudget").value);
+      const budget = Number($("edBudget").value);
       const patch = {
         name: $("edName").value.trim(),
         category: $("edCat").value,
@@ -1589,20 +1568,21 @@ dialog.editor::backdrop { background: rgba(30, 18, 15, .45); }
       };
       patch.area = areaOf(patch.city, patch.gu, "");
       const oldPhotoId = p.photoId;
-      if (edPhoto) Object.assign(patch, await storePhoto(edPhoto));
-      else if (edPhoto === null) Object.assign(patch, { photoId: null, photoData: null });
+      if (edPhoto) Object.assign(patch, await storePhoto(edPhoto), { photoUrl: null });
+      else if (edPhoto === null) Object.assign(patch, { photoId: null, photoKey: null, photoData: null, photoUrl: null });
       await store.update(p.id, patch);
       if (edPhoto !== undefined && oldPhotoId && assets) assets.delete(oldPhotoId).catch(() => {});
       ed.close();
-      showToast("고쳤어요");
+      showToast("저장했어요");
     } catch {
-      showToast("저장하지 못했어요. 다시 눌러주세요.");
+      showToast("저장하지 못했어요. 다시 눌러 주세요.");
     } finally {
       save.disabled = false;
       save.textContent = "저장";
     }
   });
 
+  if (!document.documentElement.lang) document.documentElement.lang = "ko";
   store.on(render);
   render();
   boot();
