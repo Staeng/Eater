@@ -752,6 +752,12 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
   const PASS_KEY = "eater.pass";
   const getPass = () => { try { return localStorage.getItem(PASS_KEY) || ""; } catch { return ""; } };
   const setPass = v => { try { localStorage.setItem(PASS_KEY, v); } catch { /* not remembered */ } };
+  // 같이 쓰기 링크(주소#pass=비밀번호)로 열면 비밀번호를 기억하고 주소창에서 지운다
+  const invite = location.hash.match(/^#pass=(.+)$/);
+  if (invite) {
+    try { setPass(decodeURIComponent(invite[1])); } catch { /* malformed link */ }
+    history.replaceState(null, "", location.pathname + location.search);
+  }
   class ApiError extends Error { constructor(status, code) { super(code || String(status)); this.status = status; this.code = code; } }
   async function api(method, path, body, signal) {
     const headers = {};
@@ -1477,6 +1483,7 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
     const ex = items.filter(p => p.example);
     const extra = $("resultExtra");
     extra.replaceChildren();
+    if (store.mode === "server") extra.append(h("button", { class: "linkbtn", type: "button", text: "같이 쓸 링크 보내기", onclick: shareInvite }));
     if (ex.length && !readOnly) {
       const btn = h("button", { class: "linkbtn danger", type: "button", text: `예시 ${ex.length}개 지우기` });
       let armed = 0;
@@ -1492,6 +1499,21 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
         showToast("예시 카드를 지웠어요");
       });
       extra.append(btn);
+    }
+  }
+  // A link that opens the app without the password screen (the password rides in the #hash, never sent to the server)
+  async function shareInvite() {
+    const pass = getPass();
+    const url = location.origin + "/" + (pass ? "#pass=" + encodeURIComponent(pass) : "");
+    if (navigator.share) {
+      try { await navigator.share({ title: "Eater 먹킷리스트", text: "같이 먹고 싶은 곳 담아요", url }); return; }
+      catch (e) { if (e && e.name === "AbortError") return; }
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast("링크를 복사했어요. 카톡에 붙여 넣어 보내세요.");
+    } catch {
+      showToast(url);
     }
   }
   function clearFilters() {
