@@ -5,7 +5,8 @@
   "outputDirectory": "public",
   "regions": ["hnd1"],
   "functions": {
-    "api/parse.js": { "maxDuration": 60 }
+    "api/parse.js": { "maxDuration": 60 },
+    "api/enrich.js": { "maxDuration": 60 }
   },
   "headers": [
     {
