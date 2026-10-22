@@ -1693,13 +1693,25 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
 
   // ---------- cards ----------
   let fresh = new Set();
+  // On phones, open the Naver Map app. app.map.naver.com/launchApp/* is the app's universal link
+  // (Android gets an intent from the same page); without the app it falls back to the mobile place
+  // page instead of the desktop map that naver.me links land on.
+  const PHONE = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 2);
+  const naverApp = (target, params, fallbackUrl) =>
+    `https://app.map.naver.com/launchApp/${target}?` + new URLSearchParams({ ...params, app: "Y", appmarket: "N", appSchemeName: "nmap", fallbackUrl });
   function mapHref(p) {
+    const placeId = /^\d{5,15}$/.test(p.placeId || "") ? p.placeId : ((p.link || "").match(/\/place\/(\d{5,15})/) || [])[1];
+    if (PHONE && placeId) {
+      return { href: naverApp("place", { id: placeId, pinId: placeId, pinType: "site", menu: "location", mode: "half" }, `https://m.place.naver.com/place/${placeId}/home`), label: "네이버지도", says: "네이버지도 앱에서 열기" };
+    }
     if (p.link) {
       const label = /naver\./.test(p.link) ? "네이버지도" : "지도";
       return { href: p.link, label, says: `${label}에서 열기` };
     }
     const q = [p.name || (p.menus || [])[0], p.dong || p.gu].filter(Boolean).join(" ");
-    return q ? { href: "https://map.naver.com/p/search/" + encodeURIComponent(q), label: "지도에서 찾기", says: "네이버지도에서 찾기" } : null;
+    if (!q) return null;
+    if (PHONE) return { href: naverApp("search", { query: q, menu: "location" }, "https://m.map.naver.com/search2/search.naver?query=" + encodeURIComponent(q)), label: "지도에서 찾기", says: "네이버지도 앱에서 찾기" };
+    return { href: "https://map.naver.com/p/search/" + encodeURIComponent(q), label: "지도에서 찾기", says: "네이버지도에서 찾기" };
   }
 
   function card(p) {
@@ -1728,7 +1740,8 @@ dialog.editor::backdrop { background: rgb(42 38 48 / .35); }
       info.append(h("p", { class: "where" }, svg(ICON.pin), where ? h("span", { text: where }) : null, p.area ? h("span", { class: "area", text: p.area }) : null,
         km != null ? h("span", { class: "dist", text: `상암에서 ${km < 10 ? km.toFixed(1) : Math.round(km)}km` }) : null));
     }
-    const menuList = (p.menus || []).filter(m => m !== title);
+    // two menus at most keeps cards short (memo's own menus come first)
+    const menuList = (p.menus || []).filter(m => m !== title).slice(0, 2);
     if (menuList.length) info.append(h("ul", { class: "menus", "aria-label": "먹고 싶은 메뉴" }, ...menuList.map(m => h("li", { text: m }))));
     const facts = h("dl", { class: "facts" });
     if (p.wantDate || p.wantWhen) {
