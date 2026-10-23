@@ -1,6 +1,6 @@
 // Regression checks for the place lookup, run before every deploy: `npm run check`.
 // Each case is a mistake that reached a real card once. Naver only — no Claude call, no credits.
-import { isNoticeName, menuLabel, regionOf, naverMenuPhoto } from "../lib/naver.js";
+import { isNoticeName, menuLabel, regionOf, naverMenuPhoto, blogPhotos } from "../lib/naver.js";
 import { reviewCard } from "../lib/quality.js";
 import { unseenPhotos } from "../lib/enrich.js";
 
@@ -65,6 +65,12 @@ for (const [name, where, want, why] of cases) {
     check(`  └ ${r.name}: 주소에서 구를 읽음`, Boolean(r.gu), r.gu);
     check(`  └ ${r.name}: 사진 후보 있음`, (r.photos || []).length > 0, (r.photos || []).length);
   }
+}
+
+// when a place's own photos run out, blog review photos are the next candidates (한우촌)
+{
+  const ph = await blogPhotos("골수", "중구");
+  check("사진 교체: 블로그 후기 사진도 후보로 찾음", ph.length >= 3 && ph.every(x => x.from === "blog" && x.url.startsWith("https://search.pstatic.net/")), ph.length);
 }
 
 console.log(failed ? `\n❌ ${failed}개 실패 — 배포하지 마세요.` : "\n✅ 모두 통과");

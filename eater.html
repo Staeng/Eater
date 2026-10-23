@@ -552,6 +552,8 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
 .editor .photo-edit .preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .editor .buttons { display: flex; justify-content: flex-end; gap: 8px; }
 .editor .repick { width: 100%; }
+.editor .ed-photo-msg { margin-top: -4px; justify-content: center; }
+.editor .ed-photo-msg .linkbtn { padding: 6px 0; }
 .editor .buttons .btn.primary { min-width: 96px; }
 .visited-wrap { display: grid; gap: 12px; padding: 18px 12px 16px 16px; }
 .visited-head { display: flex; align-items: center; justify-content: space-between; }
@@ -724,6 +726,7 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
       <button type="button" class="btn quiet" id="edPhotoClear">사진 빼기</button>
     </div>
     <button type="button" class="btn secondary repick" id="edRepick" hidden>맛있어 보이는 사진으로 교체</button>
+    <p class="status ed-photo-msg" id="edPhotoMsg" aria-live="polite"></p>
     <div class="buttons">
       <button type="button" class="btn quiet" id="edCancel">취소</button>
       <button type="submit" class="btn primary" id="edSave">저장</button>
@@ -2009,6 +2012,7 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
     $("edMemo").value = p.memo || "";
     edPreview(photoSrc(p), p.category);
     $("edRepick").hidden = !(store.mode === "server" && (p.placeId || /naver\./.test(p.link || "")));
+    $("edPhotoMsg").replaceChildren();
     if (typeof ed.showModal === "function") ed.showModal(); else ed.setAttribute("open", "");
   }
   // another dish photo, the most appetizing one left (the server skips the ones already shown)
@@ -2026,13 +2030,24 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
         editing = place;
         edPhoto = undefined;
         edPreview(photoSrc(place), $("edCat").value);
-        showToast("더 맛있어 보이는 사진으로 바꿨어요");
+        // said inside the editor (a toast would sit under the open dialog); undo puts the previous
+        // photo back and lets it be offered again
+        const undo = h("button", { class: "linkbtn", type: "button", onclick: async () => {
+          undo.disabled = true;
+          try {
+            await store.update(p.id, { photoUrl: p.photoUrl || null, photoKey: p.photoKey || null, photoSkip: (p.photoSkip || []).slice(-20) });
+            const back = store.items.find(x => x.id === p.id);
+            if (back && editing && editing.id === p.id) { editing = back; edPreview(photoSrc(back), $("edCat").value); }
+            $("edPhotoMsg").replaceChildren("원래 사진으로 되돌렸어요.");
+          } catch { undo.disabled = false; $("edPhotoMsg").replaceChildren("되돌리지 못했어요. 다시 눌러 주세요. ", undo); }
+        } }, "되돌리기");
+        $("edPhotoMsg").replaceChildren("사진을 바꿨어요. ", undo);
       } else {
-        showToast(result === "no_more" ? "더 고를 사진이 없어요. ‘사진 바꾸기’로 직접 넣을 수 있어요." : "바꿀 만한 음식 사진을 못 찾았어요.");
+        $("edPhotoMsg").replaceChildren(result === "no_more" ? "더 고를 사진이 없어요. ‘사진 바꾸기’로 직접 넣을 수 있어요." : "더 나은 음식 사진을 못 찾아서 그대로 뒀어요.");
       }
     } catch (e) {
       if (e instanceof ApiError && e.status === 401) { ed.close(); showLock("비밀번호가 바뀌었어요. 다시 입력해 주세요."); }
-      else showToast("사진을 바꾸지 못했어요. 다시 눌러 주세요.");
+      else $("edPhotoMsg").replaceChildren("사진을 바꾸지 못했어요. 다시 눌러 주세요.");
     } finally {
       btn.disabled = false;
       btn.textContent = label;
@@ -2045,7 +2060,21 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
     edPhoto = f;
     edPreview(URL.createObjectURL(f), $("edCat").value);
   });
-  $("edPhotoClear").addEventListener("click", () => { edPhoto = null; edPreview("", $("edCat").value); });
+  // taking the photo off asks twice, like deleting a card
+  let clearArmed = 0;
+  $("edPhotoClear").addEventListener("click", () => {
+    const btn = $("edPhotoClear");
+    if (!clearArmed) {
+      btn.textContent = "한 번 더 누르면 빼요";
+      clearArmed = setTimeout(() => { clearArmed = 0; btn.textContent = "사진 빼기"; }, 3000);
+      return;
+    }
+    clearTimeout(clearArmed);
+    clearArmed = 0;
+    btn.textContent = "사진 빼기";
+    edPhoto = null;
+    edPreview("", $("edCat").value);
+  });
   $("edCat").addEventListener("change", () => { if (edPhoto === null || (edPhoto === undefined && !photoSrc(editing))) edPreview("", $("edCat").value); });
   $("edCancel").addEventListener("click", () => ed.close());
   $("edForm").addEventListener("submit", async e => {

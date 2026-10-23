@@ -1,7 +1,7 @@
 // "맛있어 보이는 사진으로 교체": pick another dish photo for a saved card. The current photo and the
 // ones passed over before (photoSkip) are left out, and Claude picks the most appetizing of the rest.
 import { checkPass } from "../lib/auth.js";
-import { naverMenuPhoto } from "../lib/naver.js";
+import { naverMenuPhoto, blogPhotos } from "../lib/naver.js";
 import { pickDishPhoto, unseenPhotos } from "../lib/enrich.js";
 import { hasStore, getPlace, putPlace } from "../lib/store.js";
 
@@ -24,12 +24,17 @@ export default async function handler(req, res) {
 
     const info = await naverMenuPhoto({ link, name: current.name || "", where: current.gu || "", menus: current.menus || [] });
     const seen = [...(current.photoSkip || []), current.photoUrl].filter(Boolean);
-    const photos = unseenPhotos(info && info.photos, seen);
-    if (!photos.length) return res.status(200).json({ place: current, result: "no_more" });
-
+    const menus = current.menus || [];
     const report = {};
-    const url = await pickDishPhoto(photos, current.menus || [], "", report);
-    if (!url) return res.status(200).json({ place: current, result: "none", report });
+    const photos = unseenPhotos(info && info.photos, seen);
+    let url = photos.length ? await pickDishPhoto(photos, menus, "", report) : "";
+    // the place's own photos are used up or none looks good: look at photos from blog reviews too
+    let more = [];
+    if (!url) {
+      more = unseenPhotos(await blogPhotos(current.name || (info && info.name) || "", current.dong || current.gu || ""), seen);
+      if (more.length) url = await pickDishPhoto(more, menus, "", report);
+    }
+    if (!url) return res.status(200).json({ place: current, result: photos.length || more.length ? "none" : "no_more", report });
 
     const next = { ...current, photoUrl: url, photoKey: null, photoSkip: seen.slice(-20) };
     await putPlace(next);
