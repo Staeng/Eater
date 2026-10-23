@@ -513,7 +513,7 @@ dialog.editor {
   border: 0; padding: 0;
   width: min(560px, calc(100% - 24px));
   max-height: calc(100dvh - 24px);
-  overflow: auto;
+  overflow: hidden auto;
   border-radius: 20px;
   background: var(--paper); color: var(--ink);
   box-shadow: 0 20px 50px -20px rgb(43 38 24 / .45);
@@ -546,10 +546,12 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
   background-size: 12px 8px;
 }
 .editor input:focus, .editor select:focus, .editor textarea:focus { outline: none; border-color: var(--ink); background: var(--paper); }
-.editor .photo-edit { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.editor .photo-edit { position: relative; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.editor .photo-edit input.sr-only { left: 0; top: 0; }
 .editor .photo-edit .preview { width: 48px; height: 48px; border-radius: 10px; overflow: hidden; background: var(--well); display: grid; place-items: center; font-size: 28px; }
 .editor .photo-edit .preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .editor .buttons { display: flex; justify-content: flex-end; gap: 8px; }
+.editor .repick { width: 100%; }
 .editor .buttons .btn.primary { min-width: 96px; }
 .visited-wrap { display: grid; gap: 12px; padding: 18px 12px 16px 16px; }
 .visited-head { display: flex; align-items: center; justify-content: space-between; }
@@ -721,6 +723,7 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
       <label class="btn secondary" for="edPhoto">사진 바꾸기</label>
       <button type="button" class="btn quiet" id="edPhotoClear">사진 빼기</button>
     </div>
+    <button type="button" class="btn secondary repick" id="edRepick" hidden>맛있어 보이는 사진으로 교체</button>
     <div class="buttons">
       <button type="button" class="btn quiet" id="edCancel">취소</button>
       <button type="submit" class="btn primary" id="edSave">저장</button>
@@ -2005,8 +2008,36 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
     $("edWhen").value = p.wantWhen || "";
     $("edMemo").value = p.memo || "";
     edPreview(photoSrc(p), p.category);
+    $("edRepick").hidden = !(store.mode === "server" && (p.placeId || /naver\./.test(p.link || "")));
     if (typeof ed.showModal === "function") ed.showModal(); else ed.setAttribute("open", "");
   }
+  // another dish photo, the most appetizing one left (the server skips the ones already shown)
+  $("edRepick").addEventListener("click", async () => {
+    const p = editing;
+    if (!p) return;
+    const btn = $("edRepick"), label = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "고르는 중…";
+    try {
+      const { place, result } = await api("POST", "/api/repick?id=" + encodeURIComponent(p.id));
+      if (result === "changed" && place) {
+        store.items = store.items.map(x => (x.id === place.id ? place : x));
+        store.emit();
+        editing = place;
+        edPhoto = undefined;
+        edPreview(photoSrc(place), $("edCat").value);
+        showToast("더 맛있어 보이는 사진으로 바꿨어요");
+      } else {
+        showToast(result === "no_more" ? "더 고를 사진이 없어요. ‘사진 바꾸기’로 직접 넣을 수 있어요." : "바꿀 만한 음식 사진을 못 찾았어요.");
+      }
+    } catch (e) {
+      if (e instanceof ApiError && e.status === 401) { ed.close(); showLock("비밀번호가 바뀌었어요. 다시 입력해 주세요."); }
+      else showToast("사진을 바꾸지 못했어요. 다시 눌러 주세요.");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = label;
+    }
+  });
   $("edPhoto").addEventListener("change", e => {
     const f = e.target.files && e.target.files[0];
     e.target.value = "";

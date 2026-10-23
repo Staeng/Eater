@@ -58,6 +58,7 @@ Anthropic에는 남은 크레딧을 알려 주는 API가 없어서, 글씨를 �
 | 사진 | `lib/enrich.js` | 메뉴판 사진 몇 장과 손님 리뷰 사진 몇 장 중 실제 음식이 찍힌 사진을 Claude가 고름(로고·그림·외관·실내 제외). 고를 수 없으면 첫 메뉴판 사진 |
 | 캐치테이블 | `lib/catchtable.js`, `lib/enrich.js` | 네이버 블로그 검색 결과로 예약/웨이팅/미리 예약 필요 여부를 Claude가 판단 |
 | 다시 채우기 | `api/enrich.js` | 저장된 카드에 위 네이버·캐치테이블 정보를 다시 채움 |
+| 사진 교체 | `api/repick.js` | 수정 화면의 ‘맛있어 보이는 사진으로 교체’: 지금 사진과 이미 넘긴 사진(`photoSkip`)을 빼고 Claude가 가장 맛있어 보이는 사진을 다시 고름 (한 번에 약 0.3원) |
 | 저장 | `api/places.js`, `lib/store.js` | 카드 목록 (Upstash Redis) |
 | 사진 | `api/photo.js` | 폰에서 줄인 JPEG을 저장하고 보여 줌 |
 | 잠금 | `lib/auth.js` | `APP_PASSCODE`와 맞는지 확인 |

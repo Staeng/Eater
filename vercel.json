@@ -12,6 +12,9 @@
     },
     "api/enrich.js": {
       "maxDuration": 60
+    },
+    "api/repick.js": {
+      "maxDuration": 60
     }
   },
   "headers": [

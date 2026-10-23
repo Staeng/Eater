@@ -2,6 +2,7 @@
 // Each case is a mistake that reached a real card once. Naver only — no Claude call, no credits.
 import { isNoticeName, menuLabel, regionOf, naverMenuPhoto } from "../lib/naver.js";
 import { reviewCard } from "../lib/quality.js";
+import { unseenPhotos } from "../lib/enrich.js";
 
 let failed = 0;
 const check = (label, ok, got) => {
@@ -34,6 +35,15 @@ for (const [raw, want] of [["가브리살 수육전골 소", "가브리살 수�
   const q = { name: "어딘가", menus: [] };
   const qi = reviewCard(q);
   check("저장 전 점검: 빠진 정보 알림", ["네이버 장소 연결 없음", "동네 정보 없음", "음식 사진 없음", "메뉴 없음"].every(x => qi.includes(x)), qi);
+}
+
+// "맛있어 보이는 사진으로 교체" never offers a photo already shown, even under an older thumbnail URL
+{
+  const img = "https://ldb-phinf.pstatic.net/a/b.jpg";
+  const thumbOld = "https://search.pstatic.net/common/?autoRotate=true&type=f300_300&src=" + encodeURIComponent(img);
+  const thumbNew = "https://search.pstatic.net/common/?autoRotate=true&quality=95&type=f320_320&src=" + encodeURIComponent(img);
+  const left = unseenPhotos([{ url: thumbNew }, { url: thumbNew.replace("b.jpg", "c.jpg") }], [thumbOld]);
+  check("사진 교체: 이미 본 사진은 다시 안 나옴", left.length === 1 && left[0].url.includes("c.jpg"), left.map(x => x.url));
 }
 
 // finding places from a typed name (Naver)
