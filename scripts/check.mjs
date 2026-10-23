@@ -67,6 +67,17 @@ for (const [name, where, want, why] of cases) {
   }
 }
 
+// Sonnet read "을지로 골수 수제비" as the dish 골수 수제비 with no place: such a dish is looked up too,
+// and every candidate (even a single one) goes to Claude, who may say none ("연남동 마라탕")
+{
+  let asked = [];
+  const pickGolsu = async c => { asked = c; return (c.find(x => x.id === "1724618660") || {}).id || null; };
+  const r = await naverMenuPhoto({ link: "", name: "골수 수제비", where: "중구 을지로동", menus: ["골수 수제비"], choose: pickGolsu, confirm: true });
+  check("메뉴로 정리된 ‘골수 수제비’: 후보에 골수가 있고 Claude 확인을 거침", r && r.placeId === "1724618660" && asked.length > 0, r && r.placeId);
+  const none = await naverMenuPhoto({ link: "", name: "마라탕", where: "마포구 연남동", menus: ["마라탕"], choose: async () => null, confirm: true });
+  check("메뉴만 적은 ‘연남동 마라탕’: Claude가 아니라면 식당을 붙이지 않음", none === null, none && none.name);
+}
+
 // when a place's own photos run out, blog review photos are the next candidates (한우촌)
 {
   const ph = await blogPhotos("골수", "중구");
