@@ -553,7 +553,8 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
 .editor .buttons { display: flex; justify-content: flex-end; gap: 8px; }
 .editor .repick { width: 100%; }
 .editor .ed-photo-msg { margin-top: -4px; justify-content: center; }
-.editor .ed-photo-msg .linkbtn { padding: 6px 0; }
+.editor .ed-photo-msg { flex-wrap: wrap; column-gap: 10px; row-gap: 0; }
+.editor .ed-photo-msg .linkbtn { padding: 6px 0; white-space: nowrap; }
 .editor .buttons .btn.primary { min-width: 96px; }
 .visited-wrap { display: grid; gap: 12px; padding: 18px 12px 16px 16px; }
 .visited-head { display: flex; align-items: center; justify-content: space-between; }
@@ -1990,7 +1991,10 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
   // ---------- editor ----------
   const ed = $("editor");
   let editing = null;
+  // undefined: photo unchanged; a File: the owner's photo; null: no photo; { url, skip }: a photo
+  // offered by "맛있어 보이는 사진으로 교체". All of them are saved only by 저장.
   let edPhoto;
+  let edOffered = [];
   $("edCat").append(...CATS.map(c => h("option", { value: c.key, text: `${c.emoji} ${c.key}` })));
   $("edCity").append(h("option", { value: "", text: "선택 안 함" }), ...CITIES.map(c => h("option", { value: c, text: c })));
 
@@ -2000,6 +2004,7 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
   function openEditor(p) {
     editing = p;
     edPhoto = undefined;
+    edOffered = [];
     $("edName").value = p.name || "";
     $("edCat").value = CAT[p.category] ? p.category : "기타";
     $("edLink").value = p.link || "";
@@ -2015,7 +2020,8 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
     $("edPhotoMsg").replaceChildren();
     if (typeof ed.showModal === "function") ed.showModal(); else ed.setAttribute("open", "");
   }
-  // another dish photo, the most appetizing one left (the server skips the ones already shown)
+  // another dish photo, the most appetizing one left (the server skips the card's earlier photos and
+  // the ones offered since the editor opened). It only shows here; 저장 keeps it, closing drops it.
   $("edRepick").addEventListener("click", async () => {
     const p = editing;
     if (!p) return;
@@ -2023,25 +2029,19 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
     btn.disabled = true;
     btn.textContent = "고르는 중…";
     try {
-      const { place, result } = await api("POST", "/api/repick?id=" + encodeURIComponent(p.id));
-      if (result === "changed" && place) {
-        store.items = store.items.map(x => (x.id === place.id ? place : x));
-        store.emit();
-        editing = place;
-        edPhoto = undefined;
-        edPreview(photoSrc(place), $("edCat").value);
-        // said inside the editor (a toast would sit under the open dialog); undo puts the previous
-        // photo back and lets it be offered again
-        const undo = h("button", { class: "linkbtn", type: "button", onclick: async () => {
-          undo.disabled = true;
-          try {
-            await store.update(p.id, { photoUrl: p.photoUrl || null, photoKey: p.photoKey || null, photoSkip: (p.photoSkip || []).slice(-20) });
-            const back = store.items.find(x => x.id === p.id);
-            if (back && editing && editing.id === p.id) { editing = back; edPreview(photoSrc(back), $("edCat").value); }
-            $("edPhotoMsg").replaceChildren("원래 사진으로 되돌렸어요.");
-          } catch { undo.disabled = false; $("edPhotoMsg").replaceChildren("되돌리지 못했어요. 다시 눌러 주세요. ", undo); }
-        } }, "되돌리기");
-        $("edPhotoMsg").replaceChildren("사진을 바꿨어요. ", undo);
+      const { result, photoUrl, skip } = await api("POST", "/api/repick?id=" + encodeURIComponent(p.id), { skip: edOffered });
+      if (editing !== p) return;
+      if (result === "changed" && photoUrl) {
+        edOffered.push(photoUrl);
+        edPhoto = { url: photoUrl, skip: Array.isArray(skip) ? skip : [] };
+        edPreview(photoUrl, $("edCat").value);
+        // said inside the editor (a toast would sit under the open dialog)
+        const back = h("button", { class: "linkbtn", type: "button", onclick: () => {
+          edPhoto = undefined;
+          edPreview(photoSrc(p), $("edCat").value);
+          $("edPhotoMsg").replaceChildren("원래 사진으로 돌렸어요.");
+        } }, "원래 사진으로");
+        $("edPhotoMsg").replaceChildren(h("span", {}, "새 사진을 골랐어요. ‘저장’을 눌러야 바뀌어요."), back);
       } else {
         $("edPhotoMsg").replaceChildren(result === "no_more" ? "더 고를 사진이 없어요. ‘사진 바꾸기’로 직접 넣을 수 있어요." : "더 나은 음식 사진을 못 찾아서 그대로 뒀어요.");
       }
@@ -2059,6 +2059,7 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
     if (!f) return;
     edPhoto = f;
     edPreview(URL.createObjectURL(f), $("edCat").value);
+    $("edPhotoMsg").replaceChildren();
   });
   // taking the photo off asks twice, like deleting a card
   let clearArmed = 0;
@@ -2074,6 +2075,7 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
     btn.textContent = "사진 빼기";
     edPhoto = null;
     edPreview("", $("edCat").value);
+    $("edPhotoMsg").replaceChildren();
   });
   $("edCat").addEventListener("change", () => { if (edPhoto === null || (edPhoto === undefined && !photoSrc(editing))) edPreview("", $("edCat").value); });
   $("edCancel").addEventListener("click", () => ed.close());
@@ -2102,7 +2104,8 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
       };
       patch.area = areaOf(patch.city, patch.gu, "");
       const oldPhotoId = p.photoId;
-      if (edPhoto) Object.assign(patch, await storePhoto(edPhoto), { photoUrl: null });
+      if (edPhoto && edPhoto.url) Object.assign(patch, { photoId: null, photoKey: null, photoData: null, photoUrl: edPhoto.url, photoSkip: edPhoto.skip });
+      else if (edPhoto) Object.assign(patch, await storePhoto(edPhoto), { photoUrl: null });
       else if (edPhoto === null) Object.assign(patch, { photoId: null, photoKey: null, photoData: null, photoUrl: null });
       await store.update(p.id, patch);
       if (edPhoto !== undefined && oldPhotoId && assets) assets.delete(oldPhotoId).catch(() => {});
