@@ -92,5 +92,15 @@ for (const [name, where, want, why] of cases) {
   check("담기: 메모의 메뉴로 블로그 사진도 찾고, 가게 이름이 제목에 있는 글이 먼저", ph.length >= 6 && titled, ph.map(x => x.title));
 }
 
+// 골수's 수제비 never shows in the place's photos or the blog list thumbnails (the posts' first pictures
+// are 수육 and the storefront), so the posts are read for the pictures next to the 수제비 part
+{
+  const ph = await blogPhotos("골수", "을지로동", "수제비");
+  const near = ph.filter(x => x.menu === "수제비");
+  const keys = ph.map(x => decodeURIComponent(x.url.split("src=")[1] || "").replace(/^https:\/\/[^/]+/, "").replace(/\/[^/]*$/, ""));
+  check("담기: 블로그 글 안에서 메모의 메뉴 이야기 옆 사진을 찾음", near.length >= 3, near.length);
+  check("담기: 같은 블로그 사진이 두 번 들어가지 않음", new Set(keys).size === keys.length, keys.length - new Set(keys).size);
+}
+
 console.log(failed ? `\n❌ ${failed}개 실패 — 배포하지 마세요.` : "\n✅ 모두 통과");
 process.exit(failed ? 1 : 0);
