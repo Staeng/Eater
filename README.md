@@ -35,7 +35,7 @@
 4. 프로젝트의 **Storage** 탭 → **Create Database** → **Upstash for Redis** → 이 프로젝트에 **Connect** 합니다.
    (`KV_REST_API_URL`, `KV_REST_API_TOKEN`이 자동으로 들어가요.) 그다음 **Deployments**에서 최신 배포를 **Redeploy** 합니다.
    저장소를 연결하기 전에는 카드가 그 기기 브라우저에만 저장되고, 화면 위에 안내가 떠요.
-5. 폰에서 주소를 열고 비밀번호를 한 번 입력한 뒤, 공유 메뉴의 **홈 화면에 추가**를 누르면 앱처럼 쓸 수 있어요.
+5. 폰에서 주소를 열고 비밀번호를 한 번 입력한 뒤, 공유 메뉴의 **홈 화면에 추가**를 누르면 앱처럼 쓸 수 있어요. 홈 화면 앱은 다시 열 때마다 `/version.json`으로 새 배포를 확인하고, 바뀌었으면 스스로 새로 불러와요(글을 쓰는 중이면 안내만 띄워요).
 
 지금은 GitHub 기본 브랜치가 `claude/beautiful-cannon-e81kwp`라서 Vercel이 이 브랜치를 운영(Production) 배포로 씁니다.
 

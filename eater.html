@@ -1029,7 +1029,8 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
       canSendImages = true;
       store.useServer(places || []);
       refreshSpend();
-      document.addEventListener("visibilitychange", () => { if (!document.hidden) { store.refresh(); refreshSpend(); } });
+      document.addEventListener("visibilitychange", () => { if (!document.hidden) { store.refresh(); refreshSpend(); checkVersion(); } });
+      setInterval(() => { if (!document.hidden) checkVersion(); }, 10 * 60 * 1000);
     } catch (e) {
       if (e instanceof ApiError && e.status === 401) return showLock();
       if (e instanceof ApiError && e.status === 503) {
@@ -1039,6 +1040,19 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
       }
       store.useLocal();
     }
+  }
+
+  // A home-screen app keeps the old page alive between launches and has no reload button, so after a
+  // deploy it reloads itself — right away when nothing is being typed, otherwise via the toast.
+  const BUILD = (document.querySelector('meta[name="eater-build"]') || {}).content || "";
+  async function checkVersion() {
+    if (!BUILD) return;
+    try {
+      const { build } = await (await fetch("/version.json", { cache: "no-store" })).json();
+      if (!build || build === BUILD) return;
+      if (!composerInUse() && !document.querySelector("dialog[open]")) location.reload();
+      else showToast("새 버전이 나왔어요", "새로고침", () => location.reload());
+    } catch { /* offline: try again next time */ }
   }
 
   function showNotice(text) { $("notice").textContent = text; $("notice").hidden = false; }

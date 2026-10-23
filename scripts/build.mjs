@@ -21,6 +21,10 @@ const og = [
   site && `<meta property="og:image" content="${site}/icon-512.png">`,
 ].filter(Boolean).join("\n");
 
+// Each deploy gets an id. The page compares it with /version.json whenever it comes back to the
+// front, so a home-screen app (iOS keeps the old page alive between launches) picks up new deploys.
+const build = (process.env.VERCEL_GIT_COMMIT_SHA || "").slice(0, 12) || Date.now().toString(36);
+
 const html = `<!doctype html>
 <html lang="ko">
 <head>
@@ -30,7 +34,8 @@ const html = `<!doctype html>
 <meta name="theme-color" content="#FBF7EC">
 <meta name="color-scheme" content="light">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Eater">
+<meta name="apple-mobile-web-app-title" content="먹킷리스트">
+<meta name="eater-build" content="${build}">
 <meta name="mobile-web-app-capable" content="yes">
 ${og}
 <link rel="manifest" href="/manifest.webmanifest">
@@ -51,4 +56,5 @@ await fs.rm(out, { recursive: true, force: true });
 await fs.mkdir(out, { recursive: true });
 await fs.cp(path.join(root, "static"), out, { recursive: true });
 await fs.writeFile(path.join(out, "index.html"), html);
+await fs.writeFile(path.join(out, "version.json"), JSON.stringify({ build }));
 console.log("built public/index.html");
