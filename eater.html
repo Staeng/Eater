@@ -1388,7 +1388,12 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
         const reports = Array.isArray(out.reports) ? out.reports : [];
         const found = arr.filter((_, i) => !(reports[i] && reports[i].missing));
         const missing = arr.filter((_, i) => reports[i] && reports[i].missing).map(p => p.name).filter(Boolean);
-        return { list: found.length ? found : null, missing, note: "" };
+        // what the server's last check couldn't fill in, named so it can be fixed with the pencil
+        const flagged = arr.map((p, i) => [p, reports[i]]).filter(([, r]) => r && !r.missing && Array.isArray(r.issues) && r.issues.length)
+          .map(([p, r]) => [p, r.issues.filter(x => !(photo && x === "음식 사진 없음"))]).filter(([, xs]) => xs.length)
+          .map(([p, xs]) => `${p.name || (p.menus || [])[0] || "이름 없는 곳"}(${xs.join(", ")})`);
+        const issueNote = flagged.length ? `확인이 필요한 카드: ${flagged.join(", ")}. 카드의 연필 버튼으로 고칠 수 있어요.` : "";
+        return { list: found.length ? found : null, missing, issueNote, note: "" };
       } catch (e) {
         if (e && e.name === "AbortError") throw { code: "cancelled" };
         if (e instanceof ApiError && e.status === 401) { showLock("비밀번호가 바뀌었어요. 다시 입력해 주세요."); throw e; }
@@ -1416,7 +1421,7 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
     const rawLinks = findUrls(raw);
     const photo = attached;
     try {
-      const { list, note, missing = [] } = await askClaude(raw, photo, ctl.signal);
+      const { list, note, missing = [], issueNote = "" } = await askClaude(raw, photo, ctl.signal);
       const missNote = missing.length ? `네이버지도에서 못 찾은 가게: ${missing.map(n => `‘${n}’`).join(", ")}. 가게 이름을 정확히 적거나 네이버지도 링크를 붙여서 다시 담아 주세요.` : "";
       if (!list && missing.length) { setStatus(missNote, true); $("raw").focus(); return; }
       const items = (list || localParse(raw)).map(p => normalize(p, raw, rawLinks));
@@ -1462,7 +1467,7 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
       const added = document.querySelector(".card.pop");
       if (added) added.scrollIntoView({ block: "center", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
       clearComposer();
-      const msg = [missNote, note, photoNote].filter(Boolean).join(" ");
+      const msg = [missNote, issueNote, note, photoNote].filter(Boolean).join(" ");
       setStatus(msg, !!msg);
       if (dups.length) showDuplicates(dups, true);
       const first = toAdd[0].name || toAdd[0].menus[0];

@@ -86,6 +86,13 @@ APP_PASSCODE=1234 ANTHROPIC_API_KEY=sk-ant-... npm run dev   # http://localhost:
 
 Redis 없이 `.data/dev-store.json`에 저장돼요.
 
+```bash
+npm run check   # 가게 찾기·메뉴·동네 처리 시험 (지난 실수 사례 모음, 배포 전에 꼭)
+npm run audit   # 실제 앱에 저장된 카드들을 같은 기준으로 점검 (읽기만 함)
+```
+
+카드는 저장 직전에 `lib/quality.js`가 한 번 더 점검해요. 고칠 수 있는 건 고치고(주소로 동네 채우기, 안내 문구·중복 메뉴 빼기), 못 고친 건 담은 직후 화면에 ‘확인이 필요한 카드’로 알려 줘요.
+
 ## claude.ai 아티팩트 버전
 
 같은 `eater.html`이 claude.ai 아티팩트로도 올라가 있어요: https://claude.ai/artifact/9DYdfrRaCP1EvmmvXB4CWe
