@@ -132,7 +132,7 @@ button { cursor: pointer; }
   gap: 10px;
   transition: box-shadow .2s;
 }
-.composer:focus-within, .composer.thinking { box-shadow: 0 0 0 2px var(--yellow), var(--shadow); }
+.composer.open, .composer.thinking { box-shadow: 0 0 0 2px var(--yellow), var(--shadow); }
 /* while Claude organizes: a yellow bar sweeps along the bottom edge */
 .composer.thinking::after {
   content: "";
@@ -156,9 +156,10 @@ button { cursor: pointer; }
 }
 .composer textarea::placeholder, .field input::placeholder, .reel-field input::placeholder { color: var(--ink-2); opacity: 1; }
 .composer textarea:focus { outline: none; background: var(--paper); border-color: var(--line); }
-/* with cards on the list the composer folds to one line until it is used */
-body.has-items .composer:not(:focus-within):not(.thinking) textarea { min-height: 50px; height: 50px; padding-block: 0; line-height: 50px; resize: none; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-body.has-items .composer:not(:focus-within):not(.thinking) .reel-row { display: none; }
+/* with cards on the list the composer folds to one line until it is used (.open is set by script:
+   tapping a checkbox on iPhone moves no focus, so :focus-within would fold it mid-tap) */
+body.has-items .composer:not(.open):not(.thinking) textarea { min-height: 50px; height: 50px; padding-block: 0; line-height: 50px; resize: none; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+body.has-items .composer:not(.open):not(.thinking) .reel-row { display: none; }
 .reel-row { display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; }
 .check { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; cursor: pointer; font-size: var(--t-small); color: var(--ink-2); user-select: none; }
 .check input { width: 20px; height: 20px; margin: 0; accent-color: var(--yellow); cursor: pointer; }
@@ -174,7 +175,7 @@ body.has-items .composer:not(:focus-within):not(.thinking) .reel-row { display: 
 .reel-field input:focus { outline: none; border-color: var(--ink); }
 .composer-bar { display: flex; align-items: center; gap: 8px; }
 .tips { margin: 0; color: var(--ink-2); font-size: var(--t-label); line-height: 1.45; }
-body.has-items .composer:not(:focus-within) .tips { display: none; }
+body.has-items .composer:not(.open) .tips { display: none; }
 .attach-thumb { position: relative; width: 48px; height: 48px; border-radius: 10px; overflow: hidden; flex: none; }
 .attach-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .attach-thumb button {
@@ -1339,6 +1340,16 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
     $("reelField").hidden = !e.target.checked;
     if (e.target.checked) $("reelInput").focus();
   });
+  // The composer opens on any tap or focus inside it, and folds back only when it is empty
+  // (no text, no reel box ticked, no photo) and something outside it is tapped or focused.
+  const composer = $("composer");
+  const composerInUse = () => $("raw").value.trim() !== "" || $("hasReel").checked || Boolean(attached) || Boolean(busy);
+  const openComposer = () => composer.classList.add("open");
+  const foldComposer = e => { if (!composer.contains(e.target) && !composerInUse()) composer.classList.remove("open"); };
+  composer.addEventListener("pointerdown", openComposer);
+  composer.addEventListener("focusin", openComposer);
+  document.addEventListener("pointerdown", foldComposer);
+  document.addEventListener("focusin", foldComposer);
   $("raw").addEventListener("keydown", e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); organize(); } });
   $("go").addEventListener("click", () => (busy ? busy.abort() : organize()));
 
@@ -1444,6 +1455,7 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
         $("reelInput").value = "";
         $("hasReel").checked = false;
         $("reelField").hidden = true;
+        composer.classList.remove("open");
         attached = null;
         $("attachThumb").hidden = true;
       };
