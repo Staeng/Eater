@@ -299,7 +299,7 @@ input[type=file].sr-only:focus-visible + label { outline: 2px solid var(--ink); 
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 104px;
-  grid-template-areas: "info thumb";
+  grid-template-areas: "info thumb" "foot foot";
   gap: 0 14px;
   padding: 16px;
   background: linear-gradient(160deg, #FFFFFF 40%, #FFFBF0);
@@ -313,24 +313,10 @@ input[type=file].sr-only:focus-visible + label { outline: 2px solid var(--ink); 
   background: linear-gradient(135deg, #FFE27D 0%, #FFC72C 70%, #FFBA1F 100%);
   box-shadow: 0 12px 26px -16px rgb(170 110 0 / .6);
 }
-.card.pinned .cat, .card.pinned .more-btn { background: rgb(255 255 255 / .6); }
+.card.pinned .cat, .card.pinned .ib { background: rgb(255 255 255 / .6); }
 .card.pinned .ct-btn, .card.pinned .dist { color: var(--ink); }
 .card.pinned .thumb { background: rgb(255 255 255 / .5); }
 .card.pinned .grip, .card.pinned .pin-tag { background: var(--ink); color: var(--yellow); }
-/* ⋯ opens the card's action sheet */
-.more-btn {
-  position: relative; z-index: 2;
-  margin-left: auto;
-  width: 30px; height: 30px;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: var(--well);
-  color: var(--ink);
-  display: grid; place-items: center;
-}
-.more-btn svg { width: 18px; height: 18px; }
-.more-btn::after { content: ""; position: absolute; inset: -7px; }
 .pin-tag {
   display: inline-flex; align-items: center; gap: 3px;
   min-height: 24px;
@@ -450,18 +436,6 @@ body.sorting { -webkit-user-select: none; user-select: none; }
   display: grid;
   place-items: center;
 }
-/* reel shortcut sits on the photo's corner */
-.reel-dot {
-  position: absolute; right: 6px; bottom: 6px; z-index: 2;
-  width: 28px; height: 28px;
-  border-radius: 50%;
-  background: rgb(255 255 255 / .92);
-  color: var(--ink);
-  display: grid; place-items: center;
-  box-shadow: 0 2px 6px rgb(43 38 24 / .25);
-}
-.reel-dot svg { width: 12px; height: 12px; margin-left: 2px; }
-.reel-dot::after { content: ""; position: absolute; inset: -8px; }
 .thumb .emoji { font-size: 40px; line-height: 1; }
 .thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .sticker {
@@ -478,36 +452,27 @@ body.sorting { -webkit-user-select: none; user-select: none; }
 .sticker.today { background: var(--ink); color: var(--yellow); }
 .sticker.past { background: rgb(43 38 24 / .6); color: #FFFFFF; }
 
-/* ---------- card action sheet (⋯) ---------- */
-dialog.sheet {
-  border: 0; padding: 0;
-  margin: auto auto 0;
-  width: min(560px, 100%);
-  max-width: 100%;
-  max-height: 85dvh;
-  overflow: auto;
-  border-radius: 22px 22px 0 0;
-  background: var(--paper); color: var(--ink);
-}
-dialog.sheet::backdrop { background: rgb(43 38 24 / .35); }
-.sheet-body { display: grid; gap: 2px; padding: 10px 14px calc(14px + env(safe-area-inset-bottom, 0px)); }
-.sheet-grab { justify-self: center; width: 40px; height: 4px; margin-bottom: 8px; border-radius: 2px; background: var(--line); }
-.sheet h2 { margin: 0 6px 6px; font-size: var(--t-title); font-weight: 800; }
-.sheet-list { list-style: none; margin: 0; padding: 0; display: grid; }
-.sheet-item {
-  display: flex; align-items: center; gap: 12px;
-  width: 100%; min-height: 52px;
-  padding: 0 8px;
-  border: 0; border-radius: 12px;
-  background: none;
+/* footer: small round icon buttons — map and reel on the left, card actions on the right */
+.foot { grid-area: foot; display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; }
+.foot .left, .foot .right { display: flex; align-items: center; gap: 4px; }
+.ib {
+  position: relative; z-index: 2;
+  width: 32px; height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--well);
   color: var(--ink);
-  font-size: var(--t-body); font-weight: 600;
-  text-align: left; text-decoration: none;
+  display: grid; place-items: center;
+  text-decoration: none;
 }
-.sheet-item:hover { background: var(--well); }
-.sheet-item svg { width: 20px; height: 20px; flex: none; color: var(--ink-2); }
-.sheet-item.danger, .sheet-item.danger svg { color: var(--danger); }
-.sheet-close { width: 100%; margin-top: 8px; }
+.ib svg { width: 16px; height: 16px; }
+.ib::after { content: ""; position: absolute; inset: -6px -2px; }
+.ib:hover { background: var(--line); }
+.ib.on { background: var(--yellow); }
+.card.pinned .ib.on { background: var(--ink); color: var(--yellow); }
+.ib.go { z-index: auto; }
+.ib.confirm { width: auto; padding: 0 10px; border-radius: var(--r-pill); background: var(--danger); color: #FFFFFF; font-size: .75rem; font-weight: 800; }
 .icon-btn {
   position: relative; z-index: 2;
   width: 44px; height: 44px;
@@ -772,15 +737,6 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
   </div>
 </dialog>
 
-<dialog class="sheet" id="actions" aria-labelledby="actTitle">
-  <div class="sheet-body">
-    <div class="sheet-grab" aria-hidden="true"></div>
-    <h2 id="actTitle"></h2>
-    <ul class="sheet-list" id="actList"></ul>
-    <button class="btn secondary sheet-close" type="button" id="actClose">닫기</button>
-  </div>
-</dialog>
-
 <dialog class="editor" id="dupDialog" aria-labelledby="dupTitle">
   <form method="dialog">
     <h2 id="dupTitle">이미 담은 곳이에요</h2>
@@ -909,7 +865,6 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
     trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/></svg>',
     check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
     play: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5Z"/></svg>',
-    more: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="6" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="18" cy="12" r="1.9"/></svg>',
     grip: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="6" r="1.7"/><circle cx="15" cy="6" r="1.7"/><circle cx="9" cy="12" r="1.7"/><circle cx="15" cy="12" r="1.7"/><circle cx="9" cy="18" r="1.7"/><circle cx="15" cy="18" r="1.7"/></svg>',
     tack: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3.5h6l-1 5.5 3.5 3.5h-11L10 9z"/><path d="M12 12.5V21"/></svg>',
     tackOn: '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3.5h6l-1 5.5 3.5 3.5h-11L10 9z"/><path d="M12 12.5V21" fill="none"/></svg>',
@@ -1586,44 +1541,6 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
     } catch { showToast("바꾸지 못했어요. 다시 눌러 주세요."); }
   }
 
-  // ---------- card actions (⋯ sheet) ----------
-  const actSheet = $("actions");
-  function openActions(p) {
-    const title = titleOf(p) || "이름 없는 맛집";
-    const go = mapHref(p);
-    const link = (icon, label, href) => h("li", null, h("a", { class: "sheet-item", href, target: "_blank", rel: "noopener noreferrer", onclick: () => actSheet.close() }, svg(icon), label));
-    const action = (icon, label, run) => h("li", null, h("button", { class: "sheet-item", type: "button", onclick: () => { actSheet.close(); run(); } }, svg(icon), label));
-    const rows = [];
-    if (go) rows.push(link(ICON.pin, go.says, go.href));
-    if (p.reel) rows.push(link(ICON.play, `${reelLabel(p.reel)} 보기`, p.reel));
-    if (p.catchtable) rows.push(link(ICON.cal, "캐치테이블에서 예약", p.catchtable));
-    if (p.tabling) rows.push(link(p.tablingMode === "예약" ? ICON.cal : ICON.queue, p.tablingMode === "예약" ? "테이블링에서 예약" : "테이블링 줄서기", p.tabling));
-    if (!readOnly) {
-      rows.push(
-        action(p.pinned ? ICON.tackOn : ICON.tack, p.pinned ? "우선 고정 풀기" : "맨 위에 우선으로 고정", () => togglePin(p)),
-        action(ICON.check, "다녀왔어요", () => markVisited(p)),
-        action(ICON.edit, "고치기", () => openEditor(p)));
-      // deleting asks twice
-      const del = h("button", { class: "sheet-item danger", type: "button" }, svg(ICON.trash), "지우기");
-      let armed = false;
-      del.addEventListener("click", async () => {
-        if (!armed) { armed = true; del.replaceChildren(svg(ICON.trash), "한 번 더 누르면 지워요"); return; }
-        actSheet.close();
-        try {
-          await store.remove(p.id);
-          if (p.photoId && assets) assets.delete(p.photoId).catch(() => {});
-          showToast(`${withObj(title)} 지웠어요`);
-        } catch { showToast("지우지 못했어요. 다시 해 주세요."); }
-      });
-      rows.push(h("li", null, del));
-    }
-    $("actTitle").textContent = title;
-    $("actList").replaceChildren(...rows);
-    if (typeof actSheet.showModal === "function") actSheet.showModal(); else actSheet.setAttribute("open", "");
-  }
-  $("actClose").addEventListener("click", () => actSheet.close());
-  actSheet.addEventListener("click", e => { if (e.target === actSheet) actSheet.close(); });
-
   // ---------- 우선 order: drag a card by its ⠿ handle, or arrow keys on the handle ----------
   let pinCount = 0;
   async function movePin(id, targetId, after) {
@@ -1884,8 +1801,7 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
       !p.pinned ? null
         : !readOnly && pinCount > 1 ? h("button", { class: "grip", type: "button", "aria-label": `${title} 우선 순서 바꾸기: 끌어서 옮기거나 위아래 화살표 키`,
           onpointerdown: e => startDrag(e, p), onkeydown: e => keyMove(e, p) }, svg(ICON.grip), "우선")
-        : h("span", { class: "pin-tag" }, svg(ICON.tackOn), "우선"),
-      h("button", { class: "more-btn", type: "button", "aria-haspopup": "dialog", "aria-label": `${title} 메뉴 열기`, onclick: () => openActions(p) }, svg(ICON.more))));
+        : h("span", { class: "pin-tag" }, svg(ICON.tackOn), "우선")));
     info.append(h("h3", { class: "name" }, title, !p.name && (p.menus || []).length ? h("span", { class: "undecided", text: "식당 미정" }) : null));
     if (p.catchtable || p.tabling) info.append(h("div", { class: "book" },
       p.catchtable ? h("a", { class: "ct-btn", href: p.catchtable, target: "_blank", rel: "noopener noreferrer", "aria-label": `${title} 캐치테이블에서 예약하기` }, svg(ICON.cal), "캐치테이블 예약") : null,
@@ -1918,12 +1834,45 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
       thumb.append(img);
     }
     const snap = h("div", { class: "snap" }, thumb);
-    if (p.reel) snap.append(h("a", { class: "reel-dot", href: p.reel, target: "_blank", rel: "noopener noreferrer", "aria-label": `${title} ${reelLabel(p.reel)} 보기` }, svg(ICON.play)));
     if (p.wantDate) {
       const n = daysUntil(p.wantDate);
       snap.append(h("span", { class: "sticker" + (n === 0 ? " today" : n < 0 ? " past" : ""), text: n === 0 ? "오늘" : n > 0 ? `D-${n}` : "지남", title: fmtDate(p.wantDate) }));
     }
     el.append(snap);
+
+    // footer: icon buttons (each has a label for screen readers and a tooltip)
+    const ib = (icon, label, attrs) => h(attrs.href ? "a" : "button", { class: "ib", ...(attrs.href ? { target: "_blank", rel: "noopener noreferrer" } : { type: "button" }), title: label, "aria-label": `${title} ${label}`, ...attrs }, svg(icon));
+    const left = h("div", { class: "left" });
+    if (go) left.append(ib(ICON.pin, go.says, { href: go.href }));
+    if (p.reel) left.append(ib(ICON.play, `${reelLabel(p.reel)} 보기`, { href: p.reel }));
+    const right = h("div", { class: "right" });
+    if (!readOnly) {
+      const del = ib(ICON.trash, "지우기", {});
+      let armed = 0;
+      del.addEventListener("click", async () => {
+        if (!armed) {
+          del.classList.add("confirm");
+          del.replaceChildren("지우기?");
+          del.setAttribute("aria-label", `한 번 더 누르면 ${withObj(title)} 지워요`);
+          armed = setTimeout(() => { armed = 0; del.classList.remove("confirm"); del.replaceChildren(svg(ICON.trash)); del.setAttribute("aria-label", `${title} 지우기`); }, 3000);
+          return;
+        }
+        clearTimeout(armed);
+        del.disabled = true;
+        try {
+          await store.remove(p.id);
+          if (p.photoId && assets) assets.delete(p.photoId).catch(() => {});
+          showToast(`${withObj(title)} 지웠어요`);
+        } catch { del.disabled = false; showToast("지우지 못했어요. 다시 눌러 주세요."); }
+      });
+      const pin = ib(p.pinned ? ICON.tackOn : ICON.tack, p.pinned ? "우선 고정 풀기" : "맨 위에 우선으로 고정", { onclick: () => togglePin(p), "aria-pressed": p.pinned ? "true" : "false" });
+      if (p.pinned) pin.classList.add("on");
+      right.append(pin,
+        ib(ICON.check, "다녀왔어요", { onclick: () => markVisited(p) }),
+        ib(ICON.edit, "고치기", { onclick: () => openEditor(p) }),
+        del);
+    }
+    el.append(h("div", { class: "foot" }, left, right));
 
     return el;
   }
