@@ -73,5 +73,13 @@ for (const [name, where, want, why] of cases) {
   check("사진 교체: 블로그 후기 사진도 후보로 찾음", ph.length >= 3 && ph.every(x => x.from === "blog" && x.url.startsWith("https://search.pstatic.net/")), ph.length);
 }
 
+// adding a card also looks at blog photos of the memo's dish, from posts about that place first
+// (띵하우 got a 군만두 photo only by hand)
+{
+  const ph = await blogPhotos("띵하우", "연남동", "군만두");
+  const titled = ph.slice(0, 3).every(x => (x.title || "").replace(/\s/g, "").includes("띵하우"));
+  check("담기: 메모의 메뉴로 블로그 사진도 찾고, 가게 이름이 제목에 있는 글이 먼저", ph.length >= 6 && titled, ph.map(x => x.title));
+}
+
 console.log(failed ? `\n❌ ${failed}개 실패 — 배포하지 마세요.` : "\n✅ 모두 통과");
 process.exit(failed ? 1 : 0);

@@ -29,7 +29,7 @@
    | --- | --- | --- |
    | `ANTHROPIC_API_KEY` | https://console.anthropic.com 에서 만든 API 키 | 예 (없으면 간단 정리 모드로만 동작) |
    | `APP_PASSCODE` | 앱에 들어갈 때 쓸 비밀번호 | 강력 권장 (없으면 주소를 아는 누구나 쓰고 지울 수 있음) |
-   | `EATER_MODEL` | 기본값 `claude-haiku-5-5`. 더 꼼꼼한 판단이 필요하면 `claude-opus-5-5` | 아니요 |
+   | `EATER_MODEL` | 기본값 `claude-sonnet-5-5`. 아끼려면 `claude-haiku-5-5`(사진·가게를 덜 꼼꼼히 고름) | 아니요 |
 
 3. **Deploy**를 누릅니다.
 4. 프로젝트의 **Storage** 탭 → **Create Database** → **Upstash for Redis** → 이 프로젝트에 **Connect** 합니다.
@@ -42,7 +42,7 @@
 ### 비용
 
 한 곳을 담을 때 Claude를 세 번 불러요(메모 정리, 음식 사진 고르기, 캐치테이블·테이블링 판단).
-기본 모델 `claude-haiku-5-5`로 한 곳에 약 3원이에요(`claude-opus-5-5`로 바꾸면 약 80원). Upstash Redis와 Vercel은 개인 사용량이면 무료 요금제로 충분해요.
+기본 모델 `claude-sonnet-5-5`로 한 곳에 약 50원이에요(`claude-haiku-5-5`로 바꾸면 약 3원, `claude-opus-5-5`는 약 100원). Upstash Redis와 Vercel은 개인 사용량이면 무료 요금제로 충분해요.
 
 화면 오른쪽 위 회색 글씨는 오늘(한국 시간) 이 앱이 Claude에 쓴 금액과 남은 크레딧 추정치예요.
 서버가 Claude 응답의 토큰 수에 가격을 곱해 날짜별로 더해요(`lib/usage.js`, `api/usage.js`).
@@ -55,15 +55,15 @@ Anthropic에는 남은 크레딧을 알려 주는 API가 없어서, 글씨를 �
 | --- | --- | --- |
 | 화면 | `eater.html` | 한 파일짜리 페이지. `npm run build`가 `public/index.html`로 감싸서 내보냄 |
 | 정리 | `api/parse.js`, `lib/prompt.js`, `lib/naver.js` | 메모(와 사진)를 Claude에 보내 JSON(식당명, 지도·릴스 링크, 메뉴, 종류, 시·구·동, 날짜)으로 받음. 그다음 네이버 장소(메모의 링크, 없으면 이름+동네 검색)의 메뉴판에서 대표 메뉴 이름과 메뉴 사진, 좌표, 네이버 분류를 가져와 채움 |
-| 사진 | `lib/enrich.js` | 메뉴판 사진 몇 장과 손님 리뷰 사진 몇 장 중 실제 음식이 찍힌 사진을 Claude가 고름(로고·그림·외관·실내 제외). 고를 수 없으면 첫 메뉴판 사진 |
+| 사진 | `lib/enrich.js`, `lib/naver.js` | 네이버 메뉴·가게·손님 사진과 블로그 후기 사진(‘가게 이름+동네’, ‘가게 이름+메모의 메뉴’로 검색, 제목에 가게 이름이 있는 글 먼저) 20여 장 중에서, 메모에 적은 메뉴가 맛있게 찍힌 사진을, 없으면 가장 맛있어 보이는 음식 사진을 Claude가 고름(effort `medium`, 로고·그림·외관·실내 제외). 30초 안에 못 고르면 첫 메뉴 사진 |
 | 캐치테이블 | `lib/catchtable.js`, `lib/enrich.js` | 네이버 블로그 검색 결과로 예약/웨이팅/미리 예약 필요 여부를 Claude가 판단 |
 | 다시 채우기 | `api/enrich.js` | 저장된 카드에 위 네이버·캐치테이블 정보를 다시 채움 |
-| 사진 교체 | `api/repick.js` | 수정 화면의 ‘맛있어 보이는 사진으로 교체’: 지금 사진과 이미 넘긴 사진(`photoSkip`)을 빼고 Claude가 가장 맛있어 보이는 사진을 다시 고름. 네이버 사진이 바닥나거나 마땅한 게 없으면 블로그 후기 사진에서 고름. 바꾼 직후 ‘되돌리기’ 가능 (한 번에 약 0.3원) |
+| 사진 교체 | `api/repick.js` | 수정 화면의 ‘맛있어 보이는 사진으로 교체’: 지금 사진과 이미 넘긴 사진(`photoSkip`)을 빼고 Claude가 가장 맛있어 보이는 사진을 다시 고름. 네이버 사진이 바닥나거나 마땅한 게 없으면 블로그 후기 사진에서 고름. 바꾼 직후 ‘되돌리기’ 가능 (한 번에 약 20원) |
 | 저장 | `api/places.js`, `lib/store.js` | 카드 목록 (Upstash Redis) |
 | 사진 | `api/photo.js` | 폰에서 줄인 JPEG을 저장하고 보여 줌 |
 | 잠금 | `lib/auth.js` | `APP_PASSCODE`와 맞는지 확인 |
 
-Claude 요청은 `claude-haiku-5-5`, effort `low`, 구조화 출력(JSON 스키마)을 써요. Opus 같은 모델로 바꾸면 안전 분류기가 거절할 때 서버에서 다른 모델로 넘기는 `fallbacks: "default"`도 켜지고, 계정이 이 기능을 받지 않으면 자동으로 빼고 다시 요청합니다.
+Claude 요청은 `claude-sonnet-5-5`, effort `low`(사진 고르기만 `medium`), 구조화 출력(JSON 스키마)을 써요. 안전 분류기가 거절할 때 서버에서 다른 모델로 넘기는 `fallbacks: "default"`도 켜져 있고(Haiku에는 없음), 계정이 이 기능을 받지 않으면 자동으로 빼고 다시 요청합니다. 지금 쓰는 모델은 `GET /api/usage`의 `model`로 확인할 수 있어요.
 Claude를 쓸 수 없을 때(키 없음, 사용량 초과 등)는 페이지 안의 간단 정리기(정규식)로 담고, 카드의 연필 버튼으로 고칠 수 있어요.
 
 권역은 서울시 생활권 기준으로 계산해요.

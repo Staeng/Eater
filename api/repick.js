@@ -31,7 +31,7 @@ export default async function handler(req, res) {
     // the place's own photos are used up or none looks good: look at photos from blog reviews too
     let more = [];
     if (!url) {
-      more = unseenPhotos(await blogPhotos(current.name || (info && info.name) || "", current.dong || current.gu || ""), seen);
+      more = unseenPhotos(await blogPhotos(current.name || (info && info.name) || "", current.dong || current.gu || "", menus[0] || ""), seen);
       if (more.length) url = await pickDishPhoto(more, menus, "", report);
     }
     if (!url) return res.status(200).json({ place: current, result: photos.length || more.length ? "none" : "no_more", report });

@@ -1,9 +1,10 @@
 import { checkPass } from "../lib/auth.js";
 import { hasStore, getSpend, setBalance } from "../lib/store.js";
 import { kstDay } from "../lib/usage.js";
+import { MODEL } from "../lib/claude.js";
 
-// GET: today's Claude spend and the estimated balance. POST { balance }: the balance shown in the
-// Claude Console right now; later spend is subtracted from it.
+// GET: today's Claude spend, the estimated balance and the model in use. POST { balance }: the
+// balance shown in the Claude Console right now; later spend is subtracted from it.
 export default async function handler(req, res) {
   if (!checkPass(req, res)) return;
   if (!hasStore()) return res.status(503).json({ error: "no_store" });
@@ -20,7 +21,7 @@ export default async function handler(req, res) {
     }
     const { today, total, balance } = await getSpend(kstDay());
     const remaining = balance ? Math.max(0, balance.usd - (total - (balance.totalAt || 0))) : null;
-    return res.status(200).json({ today, remaining, balanceAt: balance ? balance.at : null });
+    return res.status(200).json({ today, remaining, balanceAt: balance ? balance.at : null, model: MODEL });
   } catch (err) {
     console.error("usage:", err);
     return res.status(500).json({ error: "server_error" });
