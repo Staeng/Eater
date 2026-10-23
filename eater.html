@@ -865,6 +865,7 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
     trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/></svg>',
     check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
     play: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5Z"/></svg>',
+    insta: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg>',
     grip: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="6" r="1.7"/><circle cx="15" cy="6" r="1.7"/><circle cx="9" cy="12" r="1.7"/><circle cx="15" cy="12" r="1.7"/><circle cx="9" cy="18" r="1.7"/><circle cx="15" cy="18" r="1.7"/></svg>',
     tack: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3.5h6l-1 5.5 3.5 3.5h-11L10 9z"/><path d="M12 12.5V21"/></svg>',
     tackOn: '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3.5h6l-1 5.5 3.5 3.5h-11L10 9z"/><path d="M12 12.5V21" fill="none"/></svg>',
@@ -1844,7 +1845,7 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
     const ib = (icon, label, attrs) => h(attrs.href ? "a" : "button", { class: "ib", ...(attrs.href ? { target: "_blank", rel: "noopener noreferrer" } : { type: "button" }), title: label, "aria-label": `${title} ${label}`, ...attrs }, svg(icon));
     const left = h("div", { class: "left" });
     if (go) left.append(ib(ICON.pin, go.says, { href: go.href }));
-    if (p.reel) left.append(ib(ICON.play, `${reelLabel(p.reel)} 보기`, { href: p.reel }));
+    if (p.reel) left.append(ib(/instagram\.com/i.test(p.reel) ? ICON.insta : ICON.play, `${reelLabel(p.reel)} 보기`, { href: p.reel }));
     const right = h("div", { class: "right" });
     if (!readOnly) {
       const del = ib(ICON.trash, "지우기", {});
