@@ -32,7 +32,7 @@ When a new kind of mistake shows up on a real card, fix it in code **and** add i
 - A place found from parts of the typed name takes Naver's official name; menus lose the place-name prefix.
 - 구/시/동 come from the memo, else from Naver's address. 권역 is derived on the page.
 - Menus: at most two, the memo's own first, never notices/headings/verb-like entries, no sizes or counts.
-- Photo: a real dish photo, the most appetizing one, of the memo's own dish when a good one exists (Claude picks
+- Photo: a real dish photo, the most appetizing one, of the memo's own dish whenever one exists (Claude picks
   among Naver menu, owner and visitor photos and blog review photos); never storefronts, interiors, logos or
   posters with text.
 
