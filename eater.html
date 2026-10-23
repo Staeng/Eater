@@ -299,7 +299,7 @@ input[type=file].sr-only:focus-visible + label { outline: 2px solid var(--ink); 
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 104px;
-  grid-template-areas: "info thumb" "foot foot";
+  grid-template-areas: "info thumb" "memo memo" "foot foot";
   gap: 0 14px;
   padding: 16px;
   background: linear-gradient(160deg, #FFFFFF 40%, #FFFBF0);
@@ -417,7 +417,8 @@ body.sorting { -webkit-user-select: none; user-select: none; }
 .facts dt { color: var(--ink-2); }
 .facts dd { margin: 0; font-weight: 600; }
 .facts dd small { display: block; font-size: var(--t-label); font-weight: 400; color: var(--ink-2); }
-.memo { margin: 2px 0 0; font-size: var(--t-label); color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+/* the memo runs the full width under the photo and is never cut off */
+.memo { grid-area: memo; margin: 10px 0 0; font-size: var(--t-label); line-height: 1.5; color: var(--ink-2); }
 
 .snap {
   grid-area: thumb;
@@ -1823,7 +1824,6 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
       else facts.append(h("dd", { text: p.wantWhen }));
     }
     if (facts.childElementCount) info.append(facts);
-    if (p.memo) info.append(h("p", { class: "memo", text: p.memo }));
     el.append(info);
 
     // photo (right), taped on
@@ -1840,6 +1840,7 @@ dialog.editor::backdrop { background: rgb(43 38 24 / .35); }
       snap.append(h("span", { class: "sticker" + (n === 0 ? " today" : n < 0 ? " past" : ""), text: n === 0 ? "오늘" : n > 0 ? `D-${n}` : "지남", title: fmtDate(p.wantDate) }));
     }
     el.append(snap);
+    if (p.memo) el.append(h("p", { class: "memo", text: p.memo }));
 
     // footer: icon buttons (each has a label for screen readers and a tooltip)
     const ib = (icon, label, attrs) => h(attrs.href ? "a" : "button", { class: "ib", ...(attrs.href ? { target: "_blank", rel: "noopener noreferrer" } : { type: "button" }), title: label, "aria-label": `${title} ${label}`, ...attrs }, svg(icon));
