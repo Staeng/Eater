@@ -394,7 +394,7 @@ button.visit:hover { background: var(--well); }
 .item {
   width: 100%;
   display: grid;
-  grid-template-columns: 48px minmax(0, 1fr) 28px;
+  grid-template-columns: 60px minmax(0, 1fr) 28px;
   align-items: center;
   gap: 12px;
   padding: 10px 12px 10px 10px;
@@ -405,8 +405,9 @@ button.visit:hover { background: var(--well); }
   text-align: left;
 }
 .item[aria-pressed="true"] { border-color: var(--red); }
-.thumb { width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; background: var(--well); color: var(--ink-2); }
+.thumb { width: 60px; height: 60px; border-radius: 12px; display: grid; place-items: center; overflow: hidden; background: var(--well); color: var(--ink-2); }
 .thumb svg { width: 26px; height: 26px; }
+.thumb img { width: 54px; height: 54px; object-fit: contain; display: block; }
 .thumb.broth { box-shadow: inset 0 0 0 1px rgb(0 0 0 / .06); }
 .item-name { display: block; font-size: var(--t-body); font-weight: 600; line-height: 1.4; }
 .item-sub { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; font-size: var(--t-cap); font-weight: 300; color: var(--ink-2); }
@@ -877,6 +878,8 @@ body.has-basket .toast { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); 
     "채소·버섯": [["동과"],["아삭 죽순 모둠"],["미나리"],["목이버섯 모둠"],["궁채"],["야채모둠"],["8초 감자칩"],["버섯모둠"],["싱싱 야채모둠"],["죽순"],["고수"],["8초미역줄기"],["백목이버섯"],["쑥갓"],["감자"],["시금치"],["목이버섯"],["연근"],["배추"],["겨울죽순"],["청경채"],["새송이버섯"],["찰옥수수"],["비타민채"],["흰 무","",1],["팽이버섯"],["로메인 상추"],["숙주"]],
     "사이드·디저트": [["꿔바로우"],["우유 치즈 꽃빵"],["탄탄면"],["크리스피 밀크롤"],["탕후루"],["돼지고기튀김"],["루로우판","대만식 제육덮밥"],["엔수지"],["사천식 푸딩"],["유탸오"],["만두"],["꽃빵튀김"],["더티초코꽃빵"],["파전병"],["공깃밥"],["아이스크림"],["참깨볼"]],
   };
+  // 재료·탕 사진(120px): 이름 → data URI. build.mjs가 img/ 폴더에서 채운다
+  const IMG = __IMAGES__;
   const CATS = Object.keys(MENU);
   const ITEMS = CATS.flatMap(cat => MENU[cat].map(([n, sub = "", jeju = 0]) => ({ cat, n, sub, jeju: !!jeju, key: sub ? `${n} (${sub})` : n })));
   const ITEM = Object.fromEntries(ITEMS.map(i => [i.key, i]));
@@ -1160,7 +1163,7 @@ body.has-basket .toast { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); 
         key: b.n,
         pressed: at >= 0,
         label: b.short,
-        thumb: h("span", { class: "thumb broth", style: `background: ${b.color}` }),
+        thumb: IMG[b.n] ? h("span", { class: "thumb" }, h("img", { src: IMG[b.n], alt: "", loading: "lazy", decoding: "async" })) : h("span", { class: "thumb broth", style: `background: ${b.color}` }),
         sub: (b.sub || b.hot) ? h("span", { class: "item-sub" }, b.sub ? h("span", { text: b.sub }) : null, b.hot ? h("span", { class: "spice", "aria-label": "매운 탕" }, svg(ICON.chili)) : null) : null,
         slotNo: at >= 0 ? at + 1 : 0,
         onclick: () => toggleBroth(b.n),
@@ -1200,7 +1203,7 @@ body.has-basket .toast { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); 
       key: i.key,
       pressed: pick.items.includes(i.key),
       label: i.n,
-      thumb: h("span", { class: "thumb" }, svg(CAT_ICON[i.cat])),
+      thumb: h("span", { class: "thumb" }, IMG[i.key] ? h("img", { src: IMG[i.key], alt: "", loading: "lazy", decoding: "async" }) : svg(CAT_ICON[i.cat])),
       sub: (i.sub || i.jeju || state.pickCat === "전체") ? h("span", { class: "item-sub" },
         i.sub ? h("span", { text: i.sub }) : null,
         i.jeju ? h("span", { class: "jeju", text: "제주 한정" }) : null,

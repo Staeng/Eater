@@ -25,6 +25,15 @@ for (const w of WEIGHTS) {
   if (!html.includes(mark)) throw new Error(`haidilao.html: ${mark} 자리가 없어요`);
   html = html.replace(mark, `data:font/woff2;base64,${(await font(w)).toString("base64")}`);
 }
+
+// 재료·탕 사진: img/<재료 이름>.webp(120px) → { 이름: data URI }. 아티팩트는 바깥 사진을 불러올 수 없다.
+const imgDir = path.join(here, "img");
+const images = {};
+for (const file of (await fs.readdir(imgDir)).filter(f => f.endsWith(".webp")).sort()) {
+  images[file.slice(0, -5).normalize("NFC")] = `data:image/webp;base64,${(await fs.readFile(path.join(imgDir, file))).toString("base64")}`;
+}
+if (!html.includes("__IMAGES__")) throw new Error("haidilao.html: __IMAGES__ 자리가 없어요");
+html = html.replace("__IMAGES__", () => JSON.stringify(images));
 await fs.mkdir(path.join(here, "dist"), { recursive: true });
 await fs.writeFile(path.join(here, "dist", "haidilao.html"), html);
 console.log(`dist/haidilao.html ${(html.length / 1024 / 1024).toFixed(2)}MB`);

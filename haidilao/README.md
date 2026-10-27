@@ -8,7 +8,8 @@
 
 ## 고치고 다시 올리기
 
-1. `haidilao.html`을 고쳐요. 폰트 자리(`__FONT_*__`)는 그대로 둬요.
+1. `haidilao.html`을 고쳐요. 폰트 자리(`__FONT_*__`)와 사진 자리(`__IMAGES__`)는 그대로 둬요.
+   재료·탕 사진은 `img/<재료 이름>.webp`(120px)이고, 만들 때 페이지 안에 들어가요.
 2. `node haidilao/build.mjs`로 `dist/haidilao.html`을 만들어요(프리젠테이션 폰트를 파일 안에 넣음).
    클라우드 컨테이너에서는 `NODE_USE_ENV_PROXY=1 NODE_EXTRA_CA_CERTS=/root/.ccr/ca-bundle.crt`를 붙여요.
 3. `dist/haidilao.html`을 위 주소로 다시 올려요. 저장된 기록은 그대로 남아요.
