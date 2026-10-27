@@ -439,7 +439,12 @@ button.visit:hover { background: var(--well); }
 .basket-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
 .basket-group { margin: 8px 0 2px; font-size: var(--t-cap); font-weight: 600; color: var(--ink-2); }
 .basket-list li { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 40px; border-bottom: 1px solid var(--line); }
-.basket-list li span { min-width: 0; }
+.basket-list li > span:first-child { flex: 1; min-width: 0; }
+.basket-list .li-price { font-size: var(--t-small); color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.basket-total { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 14px 0 0; padding-top: 10px; border-top: 2px solid var(--ink); font-weight: 800; }
+.basket-total b { font-size: 1.25rem; color: var(--red-ink); font-variant-numeric: tabular-nums; }
+.item-sub .price { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.item-sub .dot { color: var(--ink-2); }
 
 /* ---------- 거르기 칩 ---------- */
 .chips { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -717,7 +722,7 @@ body.has-basket .toast { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); 
       <p class="count-line" id="pickCount"></p>
       <ul class="items" id="itemList"></ul>
     </div>
-    <p class="foot-note">매장·시기에 따라 없는 메뉴가 있을 수 있어요.</p>
+    <p class="foot-note">매장·시기에 따라 없는 메뉴가 있을 수 있어요. <span id="priceNote"></span></p>
   </section>
 
   <!-- ===== 3. 소스 저장소 ===== -->
@@ -985,6 +990,7 @@ body.has-basket .toast { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); 
     db: null, canWrite: false,
     filter: { sauces: "all", diy: "all" },
     pickCat: "전골", pickQ: "",
+    prices: { items: {}, broths: {}, asOf: "" },
   };
   const validVisits = () => state.visits.filter(v => isDate(v.date));
 
@@ -1127,6 +1133,45 @@ body.has-basket .toast { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); 
   }
   const pickCount = () => pick.items.length + pick.broths.filter(Boolean).length;
 
+  // 가격: 저장소 문서 prices/menu = { items: { 재료: [원, 양] }, broths: { 탕: [한 칸, 두 칸, 네 칸] }, asOf }
+  const CELLS_NAME = { 1: "한 칸", 2: "두 칸", 4: "네 칸" };
+  const CELL_IDX = { 1: 0, 2: 1, 4: 2 };
+  const won = n => `${fmt(n)}원`;
+  function itemPrice(key) {
+    const p = state.prices.items[key];
+    return Array.isArray(p) && num(p[0]) > 0 ? { won: num(p[0]), size: str(p[1]) } : null;
+  }
+  function brothPrice(name, cells = pick.cells) {
+    const p = state.prices.broths[name];
+    const v = Array.isArray(p) ? num(p[CELL_IDX[cells]]) : 0;
+    return v > 0 ? v : null;
+  }
+  const hasPrices = () => Object.keys(state.prices.items).length + Object.keys(state.prices.broths).length > 0;
+  function pickTotal() {
+    let sum = 0, unknown = 0;
+    for (const b of pick.broths) if (b) { const v = brothPrice(b); if (v) sum += v; else unknown++; }
+    for (const k of pick.items) { const p = itemPrice(k); if (p) sum += p.won; else unknown++; }
+    return { sum, unknown };
+  }
+  const joinDots = parts => parts.flatMap((el, i) => (i ? [h("span", { class: "dot", "aria-hidden": "true", text: "·" }), el] : [el]));
+  function itemSub(i) {
+    const p = itemPrice(i.key);
+    const parts = [
+      i.sub ? h("span", { text: i.sub }) : null,
+      i.jeju ? h("span", { class: "jeju", text: "제주 한정" }) : null,
+      !i.sub && !i.jeju && state.pickCat === "전체" ? h("span", { text: i.cat }) : null,
+      p && p.size ? h("span", { text: p.size }) : null,
+      p ? h("span", { class: "price", text: won(p.won) }) : null,
+    ].filter(Boolean);
+    return parts.length ? h("span", { class: "item-sub" }, joinDots(parts)) : null;
+  }
+  function brothSub(b) {
+    const v = brothPrice(b.n);
+    const parts = [b.sub ? h("span", { text: b.sub }) : null, v ? h("span", { class: "price", text: `${CELLS_NAME[pick.cells]} ${won(v)}` }) : null].filter(Boolean);
+    const spice = b.hot ? h("span", { class: "spice", "aria-label": "매운 탕" }, svg(ICON.chili)) : null;
+    return parts.length || spice ? h("span", { class: "item-sub" }, joinDots(parts), spice) : null;
+  }
+
   function renderCats() {
     const bar = $("cats");
     const mk = c => h("button", { type: "button", role: "tab", "aria-selected": String(state.pickCat === c), onclick: () => { state.pickCat = c; renderPick(); } }, c);
@@ -1164,7 +1209,7 @@ body.has-basket .toast { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); 
         pressed: at >= 0,
         label: b.short,
         thumb: IMG[b.n] ? h("span", { class: "thumb" }, h("img", { src: IMG[b.n], alt: "", loading: "lazy", decoding: "async" })) : h("span", { class: "thumb broth", style: `background: ${b.color}` }),
-        sub: (b.sub || b.hot) ? h("span", { class: "item-sub" }, b.sub ? h("span", { text: b.sub }) : null, b.hot ? h("span", { class: "spice", "aria-label": "매운 탕" }, svg(ICON.chili)) : null) : null,
+        sub: brothSub(b),
         slotNo: at >= 0 ? at + 1 : 0,
         onclick: () => toggleBroth(b.n),
       });
@@ -1204,10 +1249,7 @@ body.has-basket .toast { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); 
       pressed: pick.items.includes(i.key),
       label: i.n,
       thumb: h("span", { class: "thumb" }, IMG[i.key] ? h("img", { src: IMG[i.key], alt: "", loading: "lazy", decoding: "async" }) : svg(CAT_ICON[i.cat])),
-      sub: (i.sub || i.jeju || state.pickCat === "전체") ? h("span", { class: "item-sub" },
-        i.sub ? h("span", { text: i.sub }) : null,
-        i.jeju ? h("span", { class: "jeju", text: "제주 한정" }) : null,
-        !i.sub && !i.jeju && state.pickCat === "전체" ? h("span", { text: i.cat }) : null) : null,
+      sub: itemSub(i),
       onclick: () => toggleItem(i.key),
     })));
     if (!shown.length) ul.append(h("li", { class: "foot-note", text: "찾는 재료가 없어요." }));
@@ -1262,16 +1304,18 @@ body.has-basket .toast { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); 
     const show = n > 0 && !$("v-pick").hidden;
     $("basketBar").hidden = !show;
     document.body.classList.toggle("has-basket", show);
-    $("basketLabel").textContent = `담은 재료 ${n}개`;
+    const { sum } = pickTotal();
+    $("basketLabel").textContent = `담은 재료 ${n}개` + (sum ? ` · ${won(sum)}` : "");
     if ($("basketDialog").open) renderBasket();
   }
   function potText() {
     const filled = pick.broths.map((nme, i) => (BROTH[nme] ? `${i + 1} ${BROTH[nme].short}` : null)).filter(Boolean);
-    return { cellsName: { 1: "한 칸", 2: "두 칸", 4: "네 칸" }[pick.cells], filled };
+    return { cellsName: CELLS_NAME[pick.cells], filled };
   }
   function renderBasket() {
     const { cellsName, filled } = potText();
-    $("basketPot").replaceChildren(h("b", { text: `탕 ${cellsName}` }), " · ", filled.length ? filled.join(", ") : "아직 안 골랐어요");
+    const potSum = pick.broths.reduce((s, b) => s + (b ? brothPrice(b) || 0 : 0), 0);
+    $("basketPot").replaceChildren(h("b", { text: `탕 ${cellsName}` }), " · ", filled.length ? filled.join(", ") : "아직 안 골랐어요", potSum ? ` · ${won(potSum)}` : "");
     const body = $("basketBody");
     body.replaceChildren();
     for (const cat of CATS) {
@@ -1280,9 +1324,15 @@ body.has-basket .toast { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); 
       body.append(h("p", { class: "basket-group", text: `${cat} ${keys.length}` }),
         h("ul", { class: "basket-list" }, keys.map(k => h("li", null,
           h("span", { text: k }),
+          itemPrice(k) ? h("span", { class: "li-price", text: won(itemPrice(k).won) }) : null,
           h("button", { type: "button", class: "icon-btn", "aria-label": `${k} 빼기`, onclick: () => toggleItem(k) }, svg(ICON.x))))));
     }
     if (!pick.items.length) body.append(h("p", { class: "foot-note", text: "담은 재료가 없어요. 분류를 눌러 골라 보세요." }));
+    if (hasPrices() && pickCount()) {
+      const { sum, unknown } = pickTotal();
+      body.append(h("p", { class: "basket-total" }, h("span", { text: "합계" }), h("b", { text: won(sum) })),
+        h("p", { class: "foot-note", text: "한 접시씩 기준이에요. 소스바·음료는 빠져 있어요." + (unknown ? ` 가격을 모르는 ${unknown}개도 빠졌어요.` : "") }));
+    }
     arm($("basketClear"), "전체 지우기");
   }
   $("basketBtn").addEventListener("click", () => { renderBasket(); $("basketDialog").showModal(); });
@@ -1298,11 +1348,12 @@ body.has-basket .toast { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); 
   });
   $("basketCopy").addEventListener("click", async () => {
     const { cellsName, filled } = potText();
-    const lines = [`오늘의 재료픽 ${shortDate(todayStr())}`, `탕(${cellsName}): ${filled.length ? filled.map(s => s.replace(/^\d+ /, "")).join(", ") : "-"}`];
+    const lines = [`오늘의 재료픽 ${shortDate(todayStr())}`, `탕(${cellsName}): ${filled.length ? pick.broths.filter(Boolean).map(b => BROTH[b].short + (brothPrice(b) ? ` ${won(brothPrice(b))}` : "")).join(", ") : "-"}`];
     for (const cat of CATS) {
       const keys = pick.items.filter(k => ITEM[k] && ITEM[k].cat === cat);
-      if (keys.length) lines.push(`${cat}: ${keys.join(", ")}`);
+      if (keys.length) lines.push(`${cat}: ${keys.map(k => k + (itemPrice(k) ? ` ${won(itemPrice(k).won)}` : "")).join(", ")}`);
     }
+    if (hasPrices()) lines.push(`합계 ${won(pickTotal().sum)}`);
     const text = lines.join("\n");
     try { await navigator.clipboard.writeText(text); toast("목록을 복사했어요"); }
     catch {
@@ -1566,6 +1617,13 @@ body.has-basket .toast { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); 
         renderAll();
       }, fail(name));
     }
+    db.doc("prices/menu").onSnapshot(snap => {
+      const d = snap.exists ? snap.data() : {};
+      const obj = v => (v && typeof v === "object" && !Array.isArray(v) ? v : {});
+      state.prices = { items: obj(d.items), broths: obj(d.broths), asOf: str(d.asOf) };
+      $("priceNote").textContent = state.prices.asOf ? `가격은 ${state.prices.asOf} 기준이에요.` : "";
+      renderPick();
+    }, () => {});
     db.doc("picks/current").onSnapshot(snap => {
       state.ready.picks = true;
       // 이 화면에서 고치는 중이면 내 것을 그대로 둔다

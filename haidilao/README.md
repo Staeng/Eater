@@ -4,7 +4,8 @@
 
 - 주소: https://claude.ai/artifact/GLebJBLtNhSj4NSRmPDScW (비공개)
 - 탭: 멤버십(등급 계산) · 재료픽(오늘 시킬 탕과 재료) · 소스 저장소 · DIY(면·탕·밥)
-- 기록은 아티팩트 저장소(`db`)에 있어요: `visits`(방문), `sauces`(소스), `diy`, `picks/current`(오늘 담은 재료)
+- 기록은 아티팩트 저장소(`db`)에 있어요: `visits`(방문), `sauces`(소스), `diy`, `picks/current`(오늘 담은 재료),
+  `prices/menu`(가격: `items` 재료 이름 → [원, 양], `broths` 탕 이름 → [한 칸, 두 칸, 네 칸], `asOf`)
 
 ## 고치고 다시 올리기
 
