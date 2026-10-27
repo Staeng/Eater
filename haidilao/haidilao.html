@@ -444,7 +444,7 @@ button.visit:hover { background: var(--well); }
 .basket-total { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 14px 0 0; padding-top: 10px; border-top: 2px solid var(--ink); font-weight: 800; }
 .basket-total b { font-size: 1.25rem; color: var(--red-ink); font-variant-numeric: tabular-nums; }
 .item-sub .price { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
-.item-sub .dot { color: var(--ink-2); }
+.item-sub .sep { color: var(--ink-2); }
 
 /* ---------- 거르기 칩 ---------- */
 .chips { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -990,7 +990,7 @@ body.has-basket .toast { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); 
     db: null, canWrite: false,
     filter: { sauces: "all", diy: "all" },
     pickCat: "전골", pickQ: "",
-    prices: { items: {}, broths: {}, asOf: "" },
+    prices: { items: {}, broths: {}, sauceBar: 0, asOf: "" },
   };
   const validVisits = () => state.visits.filter(v => isDate(v.date));
 
@@ -1141,19 +1141,21 @@ body.has-basket .toast { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); 
     const p = state.prices.items[key];
     return Array.isArray(p) && num(p[0]) > 0 ? { won: num(p[0]), size: str(p[1]) } : null;
   }
+  // 0원(맑은 탕)은 무료, 칸 값이 비어 있으면 모름(null)
   function brothPrice(name, cells = pick.cells) {
     const p = state.prices.broths[name];
-    const v = Array.isArray(p) ? num(p[CELL_IDX[cells]]) : 0;
-    return v > 0 ? v : null;
+    const v = Array.isArray(p) ? p[CELL_IDX[cells]] : null;
+    return typeof v === "number" && v >= 0 ? v : null;
   }
+  const priceText = v => (v === 0 ? "무료" : won(v));
   const hasPrices = () => Object.keys(state.prices.items).length + Object.keys(state.prices.broths).length > 0;
   function pickTotal() {
     let sum = 0, unknown = 0;
-    for (const b of pick.broths) if (b) { const v = brothPrice(b); if (v) sum += v; else unknown++; }
+    for (const b of pick.broths) if (b) { const v = brothPrice(b); if (v != null) sum += v; else unknown++; }
     for (const k of pick.items) { const p = itemPrice(k); if (p) sum += p.won; else unknown++; }
     return { sum, unknown };
   }
-  const joinDots = parts => parts.flatMap((el, i) => (i ? [h("span", { class: "dot", "aria-hidden": "true", text: "·" }), el] : [el]));
+  const joinDots = parts => parts.flatMap((el, i) => (i ? [h("span", { class: "sep", "aria-hidden": "true", text: "·" }), el] : [el]));
   function itemSub(i) {
     const p = itemPrice(i.key);
     const parts = [
@@ -1167,7 +1169,7 @@ body.has-basket .toast { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); 
   }
   function brothSub(b) {
     const v = brothPrice(b.n);
-    const parts = [b.sub ? h("span", { text: b.sub }) : null, v ? h("span", { class: "price", text: `${CELLS_NAME[pick.cells]} ${won(v)}` }) : null].filter(Boolean);
+    const parts = [b.sub ? h("span", { text: b.sub }) : null, v != null ? h("span", { class: "price", text: `${CELLS_NAME[pick.cells]} ${priceText(v)}` }) : null].filter(Boolean);
     const spice = b.hot ? h("span", { class: "spice", "aria-label": "매운 탕" }, svg(ICON.chili)) : null;
     return parts.length || spice ? h("span", { class: "item-sub" }, joinDots(parts), spice) : null;
   }
@@ -1331,7 +1333,7 @@ body.has-basket .toast { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); 
     if (hasPrices() && pickCount()) {
       const { sum, unknown } = pickTotal();
       body.append(h("p", { class: "basket-total" }, h("span", { text: "합계" }), h("b", { text: won(sum) })),
-        h("p", { class: "foot-note", text: "한 접시씩 기준이에요. 소스바·음료는 빠져 있어요." + (unknown ? ` 가격을 모르는 ${unknown}개도 빠졌어요.` : "") }));
+        h("p", { class: "foot-note", text: "한 접시씩 기준이에요." + (num(state.prices.sauceBar) > 0 ? ` 셀프소스바(1인 ${won(num(state.prices.sauceBar))})와 음료는 따로예요.` : " 소스바·음료는 빠져 있어요.") + (unknown ? ` 가격을 모르는 ${unknown}개도 빠졌어요.` : "") }));
     }
     arm($("basketClear"), "전체 지우기");
   }
@@ -1348,7 +1350,7 @@ body.has-basket .toast { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); 
   });
   $("basketCopy").addEventListener("click", async () => {
     const { cellsName, filled } = potText();
-    const lines = [`오늘의 재료픽 ${shortDate(todayStr())}`, `탕(${cellsName}): ${filled.length ? pick.broths.filter(Boolean).map(b => BROTH[b].short + (brothPrice(b) ? ` ${won(brothPrice(b))}` : "")).join(", ") : "-"}`];
+    const lines = [`오늘의 재료픽 ${shortDate(todayStr())}`, `탕(${cellsName}): ${filled.length ? pick.broths.filter(Boolean).map(b => BROTH[b].short + (brothPrice(b) != null ? ` ${priceText(brothPrice(b))}` : "")).join(", ") : "-"}`];
     for (const cat of CATS) {
       const keys = pick.items.filter(k => ITEM[k] && ITEM[k].cat === cat);
       if (keys.length) lines.push(`${cat}: ${keys.map(k => k + (itemPrice(k) ? ` ${won(itemPrice(k).won)}` : "")).join(", ")}`);
@@ -1620,7 +1622,7 @@ body.has-basket .toast { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); 
     db.doc("prices/menu").onSnapshot(snap => {
       const d = snap.exists ? snap.data() : {};
       const obj = v => (v && typeof v === "object" && !Array.isArray(v) ? v : {});
-      state.prices = { items: obj(d.items), broths: obj(d.broths), asOf: str(d.asOf) };
+      state.prices = { items: obj(d.items), broths: obj(d.broths), sauceBar: num(d.sauceBar), asOf: str(d.asOf) };
       $("priceNote").textContent = state.prices.asOf ? `가격은 ${state.prices.asOf} 기준이에요.` : "";
       renderPick();
     }, () => {});
