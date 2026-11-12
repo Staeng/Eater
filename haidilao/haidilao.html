@@ -1367,8 +1367,8 @@ body.has-basket .toast { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); 
   });
 
   // ---------- 3·4. 소스 저장소 · DIY ----------
-  // 양: 숫자로 시작하는 말(1스푼, 0.5T, 2바퀴, 1스푼(선택)) 또는 조금·살짝 같은 말
-  const AMOUNT = /^(.*\S)\s+((?:약\s*)?[\d][\d.,/~]*\s*[^\s\d]*(?:\s*\(.*\))?|조금|살짝|약간|취향껏|적당히|많이|넉넉히|한\s?꼬집|두\s?꼬집|반\s?국자|한\s?국자|선택)$/;
+  // 양: 숫자로 시작하는 말(1스푼, 0.5T, 2바퀴, 1⅓국자, 가득 2스푼), 반스푼·한 바퀴 같은 말, 조금·잠기게 같은 말
+  const AMOUNT = /^(.*?\S)\s+((?:약\s*|가득\s*)?[\d][\d.,/~]*\s*[^\s\d]*(?:\s*\(.*\))?|(?:한|두|세|반)\s?(?:티스푼|스푼|숟갈|숟가락|국자|그릇|바퀴|꼬집|집게)|조금|살짝|약간|취향껏|적당히|많이|넉넉히|잠기게|선택)$/;
   function parseItems(text) {
     return String(text).split("\n").map(s => s.trim()).filter(Boolean).slice(0, 30).map(line => {
       const m = line.match(AMOUNT);
