@@ -35,6 +35,18 @@
   --tier-gold: #F4C452;
   --tier-premium: #2B1416;
   --shadow: 0 1px 2px rgb(90 20 20 / .05), 0 10px 24px -16px rgb(90 20 20 / .32);
+  /* 재료 계열 색: 칩 바탕(-bg)과 양 글자(-ink) */
+  --f-hot-bg: #FDE3E1; --f-hot-ink: #B3121B;
+  --f-nutty-bg: #F5E8D6; --f-nutty-ink: #8A5214;
+  --f-sweet-bg: #FBE3EE; --f-sweet-ink: #A3245F;
+  --f-veg-bg: #E4F1DD; --f-veg-ink: #3D6B27;
+  --f-salty-bg: #E4E9F3; --f-salty-ink: #364A73;
+  --f-oil-bg: #FFF2CC; --f-oil-ink: #8A6400;
+  --f-meat-bg: #F3E1DB; --f-meat-ink: #8A3A22;
+  --f-sour-bg: #EEF3CF; --f-sour-ink: #56620C;
+  --f-broth-bg: #FFE7D6; --f-broth-ink: #A8461A;
+  --f-sea-bg: #DDF0F2; --f-sea-ink: #1F6670;
+  --f-carb-bg: #F1ECE2; --f-carb-ink: #6B5A3A;
 
   --font: "Freesentation", "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", system-ui, sans-serif;
   --t-hero: 2.25rem;
@@ -58,6 +70,17 @@
     --red: #E3262F; --red-press: #C21A23; --red-ink: #FF8E93; --red-soft: #3B1A1D;
     --hero-a: #CC1922; --hero-b: #7A0910; --chili: #FF5A5F;
     --pot-rim: #3A2427; --pot-in: #2A181A;
+    --f-hot-bg: #401B1E; --f-hot-ink: #FF9A9E;
+    --f-nutty-bg: #36281A; --f-nutty-ink: #E8B77A;
+    --f-sweet-bg: #3B1A2C; --f-sweet-ink: #F49AC6;
+    --f-veg-bg: #1F2F1A; --f-veg-ink: #A6D58C;
+    --f-salty-bg: #1E2535; --f-salty-ink: #A9BBE6;
+    --f-oil-bg: #342A10; --f-oil-ink: #F0CB62;
+    --f-meat-bg: #37211B; --f-meat-ink: #E8A58E;
+    --f-sour-bg: #2C3015; --f-sour-ink: #CDD780;
+    --f-broth-bg: #3A2315; --f-broth-ink: #F5A97A;
+    --f-sea-bg: #143031; --f-sea-ink: #8ED3D9;
+    --f-carb-bg: #2E2920; --f-carb-ink: #D3C3A1;
     --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 10px 24px -16px rgb(0 0 0 / .7);
     color-scheme: dark;
   }
@@ -68,6 +91,17 @@
   --red: #E3262F; --red-press: #C21A23; --red-ink: #FF8E93; --red-soft: #3B1A1D;
   --hero-a: #CC1922; --hero-b: #7A0910; --chili: #FF5A5F;
   --pot-rim: #3A2427; --pot-in: #2A181A;
+  --f-hot-bg: #401B1E; --f-hot-ink: #FF9A9E;
+  --f-nutty-bg: #36281A; --f-nutty-ink: #E8B77A;
+  --f-sweet-bg: #3B1A2C; --f-sweet-ink: #F49AC6;
+  --f-veg-bg: #1F2F1A; --f-veg-ink: #A6D58C;
+  --f-salty-bg: #1E2535; --f-salty-ink: #A9BBE6;
+  --f-oil-bg: #342A10; --f-oil-ink: #F0CB62;
+  --f-meat-bg: #37211B; --f-meat-ink: #E8A58E;
+  --f-sour-bg: #2C3015; --f-sour-ink: #CDD780;
+  --f-broth-bg: #3A2315; --f-broth-ink: #F5A97A;
+  --f-sea-bg: #143031; --f-sea-ink: #8ED3D9;
+  --f-carb-bg: #2E2920; --f-carb-ink: #D3C3A1;
   --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 10px 24px -16px rgb(0 0 0 / .7);
   color-scheme: dark;
 }
@@ -495,15 +529,28 @@ button.visit:hover { background: var(--well); }
 .icon-btn:hover { background: var(--well); color: var(--ink); }
 .icon-btn.on { color: var(--red); }
 .ings { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+/* 재료 칩: 계열마다 바탕색과 아이콘이 다르다(땅콩·참깨 갈색, 매운 것 빨강, 향채 초록, 장·소금 남색…) */
 .ings li {
-  display: inline-flex; align-items: baseline; gap: 6px;
-  padding: 4px 10px;
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 10px 4px 7px;
   border-radius: var(--r-chip);
-  background: var(--well);
+  background: var(--fb, var(--well));
   font-size: var(--t-small);
   line-height: 1.45;
 }
-.ings li b { font-weight: 800; color: var(--red-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ings li .ico { font-size: .9375rem; line-height: 1; }
+.ings li b { font-weight: 800; color: var(--fi, var(--red-ink)); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ings .f-hot { --fb: var(--f-hot-bg); --fi: var(--f-hot-ink); }
+.ings .f-nutty { --fb: var(--f-nutty-bg); --fi: var(--f-nutty-ink); }
+.ings .f-sweet { --fb: var(--f-sweet-bg); --fi: var(--f-sweet-ink); }
+.ings .f-veg { --fb: var(--f-veg-bg); --fi: var(--f-veg-ink); }
+.ings .f-salty { --fb: var(--f-salty-bg); --fi: var(--f-salty-ink); }
+.ings .f-oil { --fb: var(--f-oil-bg); --fi: var(--f-oil-ink); }
+.ings .f-meat { --fb: var(--f-meat-bg); --fi: var(--f-meat-ink); }
+.ings .f-sour { --fb: var(--f-sour-bg); --fi: var(--f-sour-ink); }
+.ings .f-broth { --fb: var(--f-broth-bg); --fi: var(--f-broth-ink); }
+.ings .f-sea { --fb: var(--f-sea-bg); --fi: var(--f-sea-ink); }
+.ings .f-carb { --fb: var(--f-carb-bg); --fi: var(--f-carb-ink); }
 .card .note { margin: 0; font-size: var(--t-cap); font-weight: 300; color: var(--ink-2); line-height: 1.55; white-space: pre-line; }
 .steps { margin: 0; padding-left: 1.4em; display: grid; gap: 4px; font-size: var(--t-small); line-height: 1.55; }
 .steps li::marker { color: var(--red-ink); font-weight: 800; }
@@ -1375,6 +1422,44 @@ body.has-basket .toast { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); 
       return m ? { n: m[1].slice(0, 60), a: m[2].slice(0, 30) } : { n: line.slice(0, 60), a: "" };
     });
   }
+  // 재료 이름 → [계열, 아이콘]. 위에서부터 처음 맞는 줄을 쓴다(고추기름은 기름보다 매운 쪽, 볶음소고기장은 장보다 고기 쪽)
+  const ING_KIND = [
+    [/토마토/, "broth", "🍅"],
+    [/맹물|면수|국물|육수|닭곰탕/, "broth", "🍲"],
+    [/스위트칠리|칠리/, "sweet", "🌶️"],
+    [/고추|고춧가루|마라|산초|청유|레드페퍼|페퍼/, "hot", "🌶️"],
+    [/땅콩|참깨소스|마장|깨$|^깨|참깨/, "nutty", "🥜"],
+    [/소고기|고기|우육/, "meat", "🥩"],
+    [/마늘/, "veg", "🧄"],
+    [/양파/, "veg", "🧅"],
+    [/^(다진)?파$|쪽파|대파|고수|미나리|부추/, "veg", "🌿"],
+    [/식초|흑초/, "sour", "🍋"],
+    [/올리브/, "oil", "🫒"],
+    [/기름|오일/, "oil", "🫗"],
+    [/소금|미원/, "salty", "🧂"],
+    [/설탕|꿀|미림/, "sweet", "🍯"],
+    [/간장|굴소스|해선장|소스|장$/, "salty", "🫙"],
+    [/전복|소라|조개/, "sea", "🐚"],
+    [/문어|오징어|꼴뚜기|주꾸미/, "sea", "🐙"],
+    [/새우/, "sea", "🦐"],
+    [/콘부|다시마|미역/, "sea", "🌊"],
+    [/버터|치즈/, "carb", "🧈"],
+    [/면$|파스타|국수|당면/, "carb", "🍝"],
+    [/밥/, "carb", "🍚"],
+    [/계란|달걀/, "carb", "🥚"],
+  ];
+  function ingKind(name) {
+    const n = str(name).replace(/\s+/g, "");
+    const hit = ING_KIND.find(([re]) => re.test(n));
+    return hit ? { fam: hit[1], icon: hit[2] } : null;
+  }
+  function ingChip(i) {
+    const k = ingKind(i.n);
+    return h("li", { class: k ? `f-${k.fam}` : null },
+      k ? h("span", { class: "ico", "aria-hidden": "true", text: k.icon }) : null,
+      h("span", { text: str(i.n) }),
+      str(i.a) ? h("b", { text: str(i.a) }) : null);
+  }
   const itemsText = items => (Array.isArray(items) ? items : []).map(i => (str(i.a) ? `${str(i.n)} ${str(i.a)}` : str(i.n))).join("\n");
 
   const KIND = {
@@ -1414,7 +1499,7 @@ body.has-basket .toast { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); 
         h("div", { class: "card-head" },
           h("div", null, h("h3", { text: str(r.name) || `이름 없는 ${K.noun}` }), h("p", { class: "meta" }, meta)),
           acts),
-        items.length ? h("ul", { class: "ings", "aria-label": "재료" }, items.map(i => h("li", null, h("span", { text: str(i.n) }), str(i.a) ? h("b", { text: str(i.a) }) : null))) : null,
+        items.length ? h("ul", { class: "ings", "aria-label": "재료" }, items.map(ingChip)) : null,
         col === "diy" && noteLines.length ? h("ol", { class: "steps", "aria-label": "만드는 법" }, noteLines.map(s => h("li", { text: s }))) : null,
         col === "sauces" && str(r.note) ? h("p", { class: "note", text: str(r.note) }) : null));
     }
